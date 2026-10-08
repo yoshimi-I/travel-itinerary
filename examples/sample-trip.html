@@ -62,8 +62,7 @@
   nav.tabs {
     position: sticky; top: 0; z-index: 10;
     display: flex; overflow-x: auto;
-    background: rgba(255, 255, 255, .94);
-    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    background: var(--paper);
     border-bottom: 1px solid var(--line);
     scrollbar-width: none;
   }
@@ -102,7 +101,7 @@
       grid-column: 1; grid-row: 2;
       align-self: start; top: 24px;
       flex-direction: column; overflow: visible;
-      background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+      background: transparent;
       border-bottom: 0; border-top: 1px solid var(--ink);
       margin: 0 28px;
     }
@@ -204,9 +203,59 @@
 
   /* ---- day / timeline -------------------------------------------------- */
   .day { border: 1px solid var(--ink); margin-bottom: 18px; background: var(--paper); }
+  .day { scroll-margin-top: calc(var(--sticky-h, 0px) + 12px); }
   .day-head {
-    display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 16px;
+    display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 10px 16px;
     padding: 14px 18px; border-bottom: 1px dashed var(--ink);
+  }
+  .day.is-collapsed .day-head { border-bottom: 0; }
+  .day-toggle {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px;
+    width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+  }
+  .day-toggle:focus-visible, .card-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+  /* 折りたたみの矢印 */
+  svg.chev { width: 18px; height: 18px; transition: transform .2s ease; }
+  [aria-expanded="false"] svg.chev { transform: rotate(-90deg); }
+  @media (prefers-reduced-motion: reduce) { svg.chev { transition: none; } }
+
+  /* カードの見出しを押して開閉する */
+  .card-toggle {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    padding: 0; border: 0; background: none; color: inherit; font: inherit;
+    font-size: 13px; font-weight: 600; letter-spacing: .08em; text-align: left; cursor: pointer;
+  }
+  .card-toggle .count { margin-left: auto; font-weight: 400; color: var(--sub); letter-spacing: 0; }
+  .card-toggle .count + svg.chev { margin-left: 8px; }
+  .card-toggle svg.chev { margin-left: auto; }
+  .card > h3.has-toggle { margin: 0; }
+  .card > h3.has-toggle + .card-body { margin-top: 12px; }
+
+  .expand-all { display: flex; justify-content: flex-end; gap: 14px; margin: -8px 0 12px; }
+  .expand-all button { border: 0; background: none; padding: 2px 0; font: inherit; font-size: 12px; color: var(--sub); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .expand-all button:hover { color: var(--ink); }
+
+  /* 日程の上に固定する、各日へ飛ぶボタン */
+  nav.day-jump {
+    position: sticky; top: var(--tabs-h, 0px); z-index: 9;
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    margin: -8px -18px 16px; padding: 8px 18px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  nav.day-jump::-webkit-scrollbar { display: none; }
+  nav.day-jump button {
+    flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; line-height: 1.25;
+    border: 1px solid var(--ink); background: var(--paper); color: var(--ink);
+    font: inherit; padding: 5px 12px; cursor: pointer;
+  }
+  nav.day-jump button small { font-size: 10px; letter-spacing: .12em; }
+  nav.day-jump button span { font-size: 12px; }
+  nav.day-jump button[aria-current="true"] { background: var(--ink); color: var(--paper); }
+  nav.day-jump button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  @media (min-width: 960px) {
+    nav.day-jump { top: 0; margin: -8px 0 16px; padding: 10px 0; }
   }
   .day-no { text-align: center; line-height: 1; padding-right: 16px; border-right: 1px solid var(--line); }
   .day-no small { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .25em; color: var(--sub); }
@@ -230,10 +279,8 @@
   .switch button + button { border-left: 1px solid var(--ink); }
   .switch button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
   .switch button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .day-head .switch { grid-column: 1 / -1; }
   @media (min-width: 560px) {
-    .day-head { grid-template-columns: auto 1fr auto; }
-    .day-head .switch { grid-column: auto; }
+    .day-head.has-switch { grid-template-columns: minmax(0, 1fr) auto; }
   }
   .weather-toggle { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; font-size: 13px; color: var(--sub); }
 
@@ -337,14 +384,15 @@
   footer a { color: var(--sub); }
 
   @media print {
-    nav.tabs, .no-print { display: none !important; }
+    nav.tabs, nav.day-jump, .expand-all, .no-print { display: none !important; }
     .layout { display: block; }
     header.hero { padding: 0 0 16px; }
     main { padding: 0; border: 0; }
     section.panel { display: block !important; animation: none !important; break-before: page; margin-top: 8px; }
     section.panel:first-of-type { break-before: auto; }
     .card, .day, .spot, .wday { break-inside: avoid; }
-    .day-variant[hidden] { display: block !important; }
+    .day-variant[hidden], .collapsible-body[hidden] { display: block !important; }
+    svg.chev { display: none; }
     .day-variant .variant-label { display: block; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #000; color: #000; }
     .check .box { border-color: #000; }
   }
@@ -380,6 +428,7 @@
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.3v.01"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.01"/></symbol>
     <symbol id="i-external" viewBox="0 0 24 24"><path d="M7 17 17 7M8.5 7H17v8.5"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5s-6 6.7-6 10.5a6 6 0 0 0 12 0c0-3.8-6-10.5-6-10.5z"/></symbol>
     <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8.5 3.5 3 6.5l2 4 2-1v11h10v-11l2 1 2-4-5.5-3a3.5 3.5 0 0 1-7 0z"/></symbol>
@@ -935,12 +984,43 @@
     if (!has(query)) return null;
     return link("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query), "地図", "pin");
   }
+  // 開閉できる部分。toggle（ボタン）を押すと body を出し入れする
+  var collapsibles = [];
+  function collapsible(toggle, body, open, onChange) {
+    body.classList.add("collapsible-body");
+    var item = {
+      set: function (o) {
+        toggle.setAttribute("aria-expanded", o ? "true" : "false");
+        body.hidden = !o;
+        if (onChange) onChange(o);
+      },
+      isOpen: function () { return toggle.getAttribute("aria-expanded") === "true"; }
+    };
+    toggle.addEventListener("click", function () { item.set(!item.isOpen()); });
+    item.set(open);
+    collapsibles.push(item);
+    return item;
+  }
+  // 「すべて開く / すべて閉じる」
+  function expandAll(items) {
+    var openBtn = el("button", { type: "button", text: "すべて開く" });
+    var closeBtn = el("button", { type: "button", text: "すべて閉じる" });
+    openBtn.addEventListener("click", function () { items.forEach(function (it) { it.set(true); }); });
+    closeBtn.addEventListener("click", function () { items.forEach(function (it) { it.set(false); }); });
+    return el("div", { class: "expand-all" }, [openBtn, closeBtn]);
+  }
   function card(title, iconName, children, opts) {
     opts = opts || {};
-    return el("div", { class: "card" + (opts.wide ? " wide" : "") }, [
-      title ? el("h3", null, [iconName ? icon(iconName) : null, title,
-        has(opts.count) ? el("span", { class: "count", text: opts.count }) : null]) : null
-    ].concat(children));
+    var label = [iconName ? icon(iconName) : null, title,
+      has(opts.count) ? el("span", { class: "count", text: opts.count }) : null];
+    if (opts.collapsible && title) {
+      var toggle = el("button", { type: "button", class: "card-toggle" }, label.concat([icon("chevron", "i chev")]));
+      var body = el("div", { class: "card-body" }, children);
+      var node = el("div", { class: "card" + (opts.wide ? " wide" : "") }, [el("h3", { class: "has-toggle" }, [toggle]), body]);
+      node.collapse = collapsible(toggle, body, !!opts.open);
+      return node;
+    }
+    return el("div", { class: "card" + (opts.wide ? " wide" : "") }, [title ? el("h3", null, label) : null].concat(children));
   }
   function kv(pairs) {
     var dl = el("dl", { class: "kv" });
@@ -1024,12 +1104,14 @@
       var sunTitle = day.title || (i + 1) + "日目";
       var title = el("div", { class: "day-title", text: sunTitle });
       var sunny = variant(day.note, day.items);
-      var head = [
+      var toggle = el("button", { type: "button", class: "day-toggle" }, [
         el("div", { class: "day-no" }, [el("small", { text: "DAY" }), el("b", { text: pad(i + 1) })]),
-        el("div", null, [el("div", { class: "day-date", text: [fmtDate(day.date), day.label].filter(has).join("　") }), title])
-      ];
+        el("div", null, [el("div", { class: "day-date", text: [fmtDate(day.date), day.label].filter(has).join("　") }), title]),
+        icon("chevron", "i chev")
+      ]);
+      var head = [toggle];
       var body = [sunny];
-      var article = el("article", { class: "day" });
+      var article = el("article", { class: "day", id: "day-" + (i + 1) });
       if (rain) {
         var rainy = variant(rain.note, rain.items, "雨天時：" + (rain.title || "雨の日のプラン"));
         rainy.hidden = true;
@@ -1049,10 +1131,13 @@
         head.push(sw);
         setters.push(set);
       }
-      article.appendChild(el("div", { class: "day-head" }, head));
-      article.appendChild(el("div", { class: "day-body" }, body));
+      var dayBody = el("div", { class: "day-body" }, body);
+      article.appendChild(el("div", { class: "day-head" + (rain ? " has-switch" : "") }, head));
+      article.appendChild(dayBody);
+      article.collapse = collapsible(toggle, dayBody, true, function (o) { article.classList.toggle("is-collapsed", !o); });
       return article;
     });
+    var articles = blocks.slice();
     if (setters.length) {
       all = weatherSwitch(function (isRain) {
         setters.forEach(function (f) { f(isRain); });
@@ -1061,7 +1146,39 @@
         all, el("span", { text: "雨天プランがある日（" + setters.length + "日）をまとめて切り替えます。日ごとにも切り替えられます。" })
       ]));
     }
+    if (articles.length > 1) {
+      blocks.unshift(expandAll(articles.map(function (a) { return a.collapse; })));
+      blocks.unshift(dayJump(days, articles));
+    }
     return blocks;
+  }
+
+  // 日程の上に固定する「DAY 01 / DAY 02 …」のボタン。押すとその日へ移動する（閉じていれば開く）
+  var dayJumpNav = null, dayJumpButtons = [], dayArticles = [];
+  function dayJump(days, articles) {
+    dayArticles = articles;
+    dayJumpButtons = days.map(function (day, i) {
+      var btn = el("button", { type: "button", "aria-current": i === 0 ? "true" : "false" }, [
+        el("small", { text: "DAY " + pad(i + 1) }),
+        has(day.date) ? el("span", { text: fmtDate(day.date).replace(/（.）$/, "") }) : null
+      ]);
+      btn.addEventListener("click", function () {
+        articles[i].collapse.set(true);
+        articles[i].scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+        markDay(i);
+      });
+      return btn;
+    });
+    dayJumpNav = el("nav", { class: "day-jump", "aria-label": "日付へ移動" }, dayJumpButtons);
+    return dayJumpNav;
+  }
+  function markDay(i) {
+    dayJumpButtons.forEach(function (b, k) { b.setAttribute("aria-current", k === i ? "true" : "false"); });
+    var b = dayJumpButtons[i];
+    if (b && dayJumpNav) {
+      var nl = dayJumpNav.scrollLeft, nw = dayJumpNav.clientWidth;
+      if (b.offsetLeft < nl || b.offsetLeft + b.offsetWidth > nl + nw) dayJumpNav.scrollLeft = b.offsetLeft - 18;
+    }
   }
 
   // ---- panels -----------------------------------------------------------
@@ -1077,7 +1194,7 @@
         ["日時", [fmtDate(mt.date), mt.time].filter(has).join(" ")],
         ["場所", mt.place],
         ["メモ", mt.note]
-      ]), mapLink(mt.mapQuery)], { wide: true }));
+      ]), mapLink(mt.mapQuery)], { wide: true, collapsible: true }));
     }
     if (has(data.members)) {
       c.push(card("メンバー", "users", [el("ul", { class: "rows" }, data.members.map(function (m) {
@@ -1085,7 +1202,7 @@
           el("div", { class: "row-head" }, [m.name || "", has(m.role) ? el("span", { class: "tag", text: m.role }) : null]),
           has(m.note) ? el("div", { class: "muted", text: m.note }) : null
         ]);
-      }))], { count: data.members.length + "人" }));
+      }))], { count: data.members.length + "人", collapsible: true }));
     }
     if (has(data.transport)) {
       c.push(card("移動", "route", [el("ul", { class: "rows" }, data.transport.map(function (t) {
@@ -1098,7 +1215,7 @@
           has(t.detail) ? el("div", { class: "muted", text: t.detail }) : null,
           extLinks(t.links)
         ]);
-      }))]));
+      }))], { count: data.transport.length + "件", collapsible: true }));
     }
     if (has(data.stays)) {
       c.push(card("宿泊", "bed", [el("ul", { class: "rows" }, data.stays.map(function (s) {
@@ -1108,7 +1225,7 @@
           has(s.note) ? el("div", { class: "muted", text: s.note }) : null,
           el("div", null, [mapLink(s.mapQuery)].concat((s.links || []).filter(function (l) { return l && safeUrl(l.url); }).map(function (l) { return link(l.url, l.label || "リンク"); })))
         ]);
-      }))]));
+      }))], { count: data.stays.length + "件", collapsible: true }));
     }
     var b = data.budget;
     if (has(b)) {
@@ -1123,12 +1240,13 @@
       c.push(card("予算", "wallet", [
         items.length ? el("ul", { class: "amounts" }, items) : null,
         has(b.note) ? el("div", { class: items.length ? "card-note" : null, text: b.note }) : null
-      ]));
+      ], { count: has(b.perPerson) ? "1人 " + yen(b.perPerson, b.currency) : null, collapsible: true }));
     }
     if (!c.length) {
       c.push(card("旅の概要", "map", [kv([["行き先", trip.destination], ["日程", fmtDate(trip.startDate) + " → " + fmtDate(trip.endDate)]])], { wide: true }));
     }
-    panels.push({ id: "overview", label: "概要", icon: "map", children: [el("div", { class: "grid two" }, c)] });
+    var ovItems = c.map(function (n) { return n.collapse; }).filter(Boolean);
+    panels.push({ id: "overview", label: "概要", icon: "map", children: [ovItems.length > 1 ? expandAll(ovItems) : null, el("div", { class: "grid two" }, c)] });
   })();
 
   // 日程
@@ -1315,6 +1433,7 @@
       buttons[k].setAttribute("aria-selected", k === id ? "true" : "false");
       buttons[k].tabIndex = k === id ? 0 : -1;
     });
+    syncSticky();
     if (user) {
       if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
       buttons[id].scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -1337,9 +1456,39 @@
   window.addEventListener("hashchange", function () { select(location.hash.slice(1), false); });
   select(location.hash.slice(1), false);
 
+  // 固定表示しているもの（スマホの上のタブ、日程の DAY ボタン）の高さを CSS に渡す。移動したときに見出しが隠れないようにするため
+  function syncSticky() {
+    var root = document.documentElement;
+    var tabsH = window.matchMedia("(max-width: 959px)").matches ? tabs.offsetHeight : 0;
+    root.style.setProperty("--tabs-h", tabsH + "px");
+    root.style.setProperty("--sticky-h", (tabsH + (dayJumpNav ? dayJumpNav.offsetHeight : 0)) + "px");
+  }
+  // スクロールに合わせて、今見ている日の DAY ボタンを黒くする
+  var ticking = false;
+  function syncCurrentDay() {
+    ticking = false;
+    if (!dayArticles.length || !sections.schedule || !sections.schedule.classList.contains("active")) return;
+    var line = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sticky-h")) + 40;
+    var cur = 0;
+    var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    dayArticles.forEach(function (a, i) {
+      var top = a.getBoundingClientRect().top;
+      // 一番下までスクロールしたときは、それ以上上に来られない最後の日も「今見ている日」にする
+      if (top <= line || (atBottom && top < window.innerHeight)) cur = i;
+    });
+    markDay(cur);
+  }
+  window.addEventListener("resize", syncSticky);
+  window.addEventListener("scroll", function () {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(syncCurrentDay); }
+  }, { passive: true });
+  syncSticky();
+
   // ここまで描画できたら、JavaScript が動かないとき用の案内を消す（途中でエラーになったときは案内が残る）
   var noJs = document.getElementById("no-js");
   if (noJs) noJs.parentNode.removeChild(noJs);
+  syncSticky();
+  window.addEventListener("load", syncSticky);
 })();
 </script>
 </body>
