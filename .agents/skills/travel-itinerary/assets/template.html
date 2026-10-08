@@ -309,6 +309,12 @@
   .check input:focus-visible + .box { outline: 2px solid var(--ink); outline-offset: 2px; }
   .check .label .tag { margin-left: 8px; }
 
+  .no-js { max-width: 560px; margin: 0 auto; padding: 48px 22px; }
+  .no-js h1 { font-size: 20px; margin: 0 0 12px; }
+  .no-js p { margin: 0 0 12px; }
+  .no-js ul { margin: 0 0 12px; padding-left: 1.2em; }
+  .no-js li { margin-bottom: 6px; }
+  .no-js + .layout { display: none; }
   footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 11px; color: var(--faint); letter-spacing: .06em; }
   footer a { color: var(--sub); }
 
@@ -362,6 +368,18 @@
   </defs>
 </svg>
 
+<!-- JavaScript が動いたら消す。動かない開き方のときだけ、この案内が残る -->
+<div class="no-js" id="no-js">
+  <h1>しおりを表示できませんでした</h1>
+  <p>このしおりは JavaScript を使って表示しています。今の開き方では JavaScript が動かないため、中身を表示できません。</p>
+  <p>次のどれかの方法で開き直してください。</p>
+  <ul>
+    <li>パソコン: ファイルをダウンロードして、Chrome・Safari・Edge などのブラウザで開く</li>
+    <li>Android: ファイルを保存してから、Chrome などのブラウザで開く</li>
+    <li>iPhone: ファイルのプレビューでは表示できないことがあります。パソコンで開くか、しおりを送ってくれた人に URL で共有してもらってください</li>
+  </ul>
+  <p>ブラウザで開いてもこの画面のままのときは、ブラウザの設定で JavaScript がオフになっていないか確認してください。</p>
+</div>
 <div class="layout">
   <header class="hero">
     <div class="eyebrow">Travel Itinerary</div>
@@ -837,6 +855,10 @@
   });
   window.addEventListener("hashchange", function () { select(location.hash.slice(1), false); });
   select(location.hash.slice(1), false);
+
+  // ここまで描画できたら、JavaScript が動かないとき用の案内を消す（途中でエラーになったときは案内が残る）
+  var noJs = document.getElementById("no-js");
+  if (noJs) noJs.parentNode.removeChild(noJs);
 })();
 </script>
 </body>
