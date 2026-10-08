@@ -24,7 +24,9 @@ h1 { font-size: 17pt; line-height: 1.25; margin: 2pt 0 3pt; }
 .meta { font-size: 9.5pt; }
 .summary { color: #555; font-size: 9pt; margin-top: 2pt; }
 
+/* 概要・日程・プランなどの項目は、それぞれ新しいページから始める */
 section { margin-top: 10pt; }
+section + section { break-before: page; page-break-before: always; margin-top: 0; }
 h2 {
   font-size: 11pt; margin: 0 0 5pt; padding-bottom: 2pt;
   border-bottom: .8pt solid #111; break-after: avoid; page-break-after: avoid;
@@ -58,10 +60,11 @@ ul.cols2 { columns: 2; column-gap: 12pt; }
 ul.cols2 li { break-inside: avoid; padding: 2pt 0 4pt; }
 
 /* 日程 */
-.day { margin-bottom: 7pt; }
+.day { margin-bottom: 18pt; }
+.day:last-child { margin-bottom: 0; }
 .day-head {
   display: flex; align-items: baseline; gap: 8pt;
-  background: #111; color: #fff; padding: 2.5pt 7pt; font-size: 10pt;
+  background: #111; color: #fff; padding: 4pt 8pt; font-size: 10.5pt; margin-bottom: 2pt;
   break-after: avoid; page-break-after: avoid;
 }
 .day-no { font-size: 8pt; letter-spacing: .15em; }
