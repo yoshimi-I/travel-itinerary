@@ -73,6 +73,12 @@ class ValidateTest(unittest.TestCase):
         self.assertTrue(any("packing" in e for e in errors_for(data)))
 
 
+class VersionTest(unittest.TestCase):
+    def test_version_is_semver(self):
+        version = (SKILL_DIR / "VERSION").read_text(encoding="utf-8").strip()
+        self.assertRegex(version, r"^[0-9]+\.[0-9]+\.[0-9]+$")
+
+
 class BuildTest(unittest.TestCase):
     def run_build(self, data):
         with tempfile.TemporaryDirectory() as tmp:

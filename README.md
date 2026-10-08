@@ -17,7 +17,7 @@ AI エージェントに質問してもらいながら、旅のしおりを作�
 curl -fsSL https://raw.githubusercontent.com/yoshimi-I/travel-itinerary/main/install.sh | bash
 ```
 
-`~/.claude/skills/`、`~/.agents/skills/`（Codex）、`~/.kiro/skills/` に skill がコピーされるので、どのフォルダからでも使えます。使うものだけに入れたいときは、`--claude`・`--codex`・`--kiro` を付けてください（`--claude --kiro` のように組み合わせもできます）。もう一度実行すると最新版に更新され、`--uninstall` で削除できます。
+`~/.claude/skills/`、`~/.agents/skills/`（Codex）、`~/.kiro/skills/` に skill がコピーされるので、どのフォルダからでも使えます。使うものだけに入れたいときは、`--claude`・`--codex`・`--kiro` を付けてください（`--claude --kiro` のように組み合わせもできます）。もう一度実行すると最新版に更新され、`--uninstall` で削除できます。新しいバージョンが出ると、skill を使い始めたときに AI が教えてくれます（確認は 1 日 1 回まで。`TRAVEL_ITINERARY_NO_UPDATE_CHECK=1` で止められます）。
 
 clone して使うこともできます。
 
@@ -76,7 +76,9 @@ Kiro のカスタムエージェントは、skill を自動では読み込みま
 ├── references/interview.md  # 質問の進め方
 ├── references/schema.md     # JSON の仕様
 ├── assets/template.html     # しおりのテンプレート
-└── scripts/build.py         # JSON を HTML にする
+├── scripts/build.py         # JSON を HTML にする
+├── scripts/check_update.sh  # 新しいバージョンがあるかの確認
+└── VERSION
 .claude/skills/travel-itinerary/SKILL.md  # Claude Code 用の入口
 .kiro/skills/travel-itinerary/SKILL.md    # Kiro 用の入口
 examples/                    # サンプル（中身は架空です）
@@ -94,7 +96,7 @@ tests/
 python3 -m unittest discover -s tests -v
 ```
 
-テンプレートやサンプルの JSON を変えたときは、サンプルの HTML も作り直してコミットしてください。CI（GitHub Actions）で、テスト、サンプルが最新かどうか、テンプレートの JavaScript の構文と、`install.sh` のインストール・削除（macOS と Linux）をチェックしています。
+テンプレートやサンプルの JSON を変えたときは、サンプルの HTML も作り直してコミットしてください。使う人に更新を届けたいときは、`.agents/skills/travel-itinerary/VERSION` の番号を上げます（インストールした人には、次に使ったときに更新のお知らせが出ます）。CI（GitHub Actions）で、テスト、サンプルが最新かどうか、テンプレートの JavaScript の構文と、`install.sh` のインストール・削除（macOS と Linux）をチェックしています。
 
 ```bash
 python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html

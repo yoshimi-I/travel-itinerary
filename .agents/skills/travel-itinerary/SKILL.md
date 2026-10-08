@@ -15,8 +15,21 @@ description: 旅のしおりを作る。旅行の行き先・日程・メンバ�
 | `<skill_dir>/references/schema.md` | しおり JSON の仕様 |
 | `<skill_dir>/assets/template.html` | しおりの HTML テンプレート |
 | `<skill_dir>/scripts/build.py` | JSON を埋め込んで HTML を出力するスクリプト |
+| `<skill_dir>/scripts/check_update.sh` | 新しいバージョンがあるかを確認するスクリプト |
 
 ## 手順
+
+### 0. 更新の確認
+
+最初の質問をする前に、次を 1 回だけ実行する。
+
+```bash
+sh <skill_dir>/scripts/check_update.sh
+```
+
+- 何も出力されなければ、そのまま進む（最新版、確認済み、オフラインなどのとき）
+- 出力があれば、その内容（新しいバージョンがあることと更新コマンド）を**一言だけ**ユーザーに伝え、更新を待たずにヒアリングを始める。更新コマンドを AI が勝手に実行しない
+- コマンドを実行できない環境なら、この手順は飛ばす
 
 ### 1. ヒアリング
 

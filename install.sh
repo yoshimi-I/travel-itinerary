@@ -144,11 +144,14 @@ install_to() {
   rm -rf "$staging"
   mkdir -p "$staging"
   local item
-  for item in SKILL.md references assets scripts; do
+  for item in SKILL.md VERSION references assets scripts; do
     [ -e "$src/$item" ] && cp -R "$src/$item" "$staging/"
   done
   find "$staging" -name '__pycache__' -type d -prune -exec rm -rf {} +
-  printf 'installed_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$staging/$MARKER"
+  {
+    printf 'installed_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    if [ -f "$src/VERSION" ]; then printf 'version=%s\n' "$(head -n 1 "$src/VERSION")"; fi
+  } >"$staging/$MARKER"
   rm -rf "$dest"
   mv "$staging" "$dest"
   info "$name: $dest"

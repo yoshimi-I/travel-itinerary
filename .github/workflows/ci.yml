@@ -57,7 +57,7 @@ jobs:
 
       - name: ShellCheck
         if: runner.os == 'Linux'
-        run: shellcheck install.sh
+        run: shellcheck install.sh .agents/skills/travel-itinerary/scripts/check_update.sh
 
       - name: Install from the checkout, then uninstall
         run: |
@@ -89,6 +89,29 @@ jobs:
           TRAVEL_ITINERARY_ARCHIVE_URL="file://$RUNNER_TEMP/src.tar.gz" bash < "$GITHUB_WORKSPACE/install.sh"
           test -f "$HOME/.claude/skills/travel-itinerary/assets/template.html"
           python3 "$HOME/.claude/skills/travel-itinerary/scripts/build.py" "$GITHUB_WORKSPACE/examples/sample-trip.json" out/index.html
+
+      - name: Update check
+        run: |
+          export HOME="$RUNNER_TEMP/home-update"
+          ./install.sh --claude
+          check="$HOME/.claude/skills/travel-itinerary/scripts/check_update.sh"
+          stamp="$HOME/.claude/skills/travel-itinerary/.last-update-check"
+          export TRAVEL_ITINERARY_VERSION_URL="file://$RUNNER_TEMP/remote-version"
+
+          echo "999.0.0" > "$RUNNER_TEMP/remote-version"
+          sh "$check" | grep -q "999.0.0"            # 新しいバージョンがあれば知らせる
+          test -z "$(sh "$check")"                  # 1 日以内は確認しない
+
+          rm "$stamp"
+          cp .agents/skills/travel-itinerary/VERSION "$RUNNER_TEMP/remote-version"
+          test -z "$(sh "$check")"                  # 同じバージョンなら何も出さない
+
+          rm "$stamp"
+          TRAVEL_ITINERARY_VERSION_URL="http://127.0.0.1:9/VERSION" sh "$check"   # つながらなくても失敗しない
+
+          rm "$stamp"
+          echo "999.0.0" > "$RUNNER_TEMP/remote-version"
+          test -z "$(TRAVEL_ITINERARY_NO_UPDATE_CHECK=1 sh "$check")"   # 無効にできる
 
       - name: Refuse to overwrite a skill it did not install
         run: |
