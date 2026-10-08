@@ -9,16 +9,29 @@ AI エージェントに質問してもらいながら、旅のしおりを作�
 
 できあがりはこんな感じです: [examples/sample-trip.html](examples/sample-trip.html)（ダウンロードしてブラウザで開いてください）
 
-## 使い方
+## インストール
 
-clone して、リポジトリの中でエージェントを起動します。
+ターミナルで次を実行すると、Claude Code と Codex の両方に入ります。
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yoshimi-I/travel-itinerary/main/install.sh | bash
+```
+
+`~/.claude/skills/` と `~/.agents/skills/` に skill がコピーされるので、どのフォルダからでも使えます。片方だけに入れたいときは `--claude` か `--codex` を付けてください。もう一度実行すると最新版に更新され、`--uninstall` で削除できます。
+
+clone して使うこともできます。
 
 ```bash
 git clone https://github.com/yoshimi-I/travel-itinerary.git
 cd travel-itinerary
+./install.sh
 ```
 
-Claude Code なら `/travel-itinerary`、Codex なら `$travel-itinerary` で始まります。「旅のしおりを作りたい」と話しかけるだけでも大丈夫です。
+macOS と Linux（Windows は WSL）で動きます。Python 3 があると、しおりの作成が安定します。
+
+## 使い方
+
+しおりを保存したいフォルダでエージェントを起動します。Claude Code なら `/travel-itinerary`、Codex なら `$travel-itinerary` で始まります。「旅のしおりを作りたい」と話しかけるだけでも大丈夫です。
 
 最初に「もう決まっていることはありますか？」と聞かれるので、予約済みの飛行機や宿、行きたい場所、予算など、分かっていることを書いてください。あとは足りないところだけを、次の順番で少しずつ聞かれます。
 
@@ -29,7 +42,7 @@ Claude Code なら `/travel-itinerary`、Codex なら `$travel-itinerary` で始
 
 決まっていないところは「未定」や「おまかせ」で進められます。おまかせにした部分は AI が提案して、提案だと分かるように確認してくれます。
 
-最後に内容を確認すると、`output/<旅の名前>/index.html` にしおりが作られます。直したいところは、そのまま AI に伝えれば作り直してくれます。
+最後に内容を確認すると、起動したフォルダの `output/<旅の名前>/index.html` にしおりが作られます。直したいところは、そのまま AI に伝えれば作り直してくれます。
 
 ## しおりの中身
 
@@ -58,7 +71,7 @@ python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.js
 
 JSON の書き方は [schema.md](.agents/skills/travel-itinerary/references/schema.md) にまとめています。
 
-skill の本体は `.agents/skills/travel-itinerary/` にあり、Codex はここを直接読みます。`.claude/skills/travel-itinerary/` は、Claude Code から本体を読むための入口です。
+skill の本体は `.agents/skills/travel-itinerary/` にあります。`install.sh` は、これを Claude Code と Codex の skill のフォルダにそのままコピーします。リポジトリの `.claude/skills/travel-itinerary/` は、clone したリポジトリの中で Claude Code を使うときのための入口です。
 
 ```
 .agents/skills/travel-itinerary/
@@ -69,6 +82,7 @@ skill の本体は `.agents/skills/travel-itinerary/` にあり、Codex はこ�
 └── scripts/build.py         # JSON を HTML にする
 .claude/skills/travel-itinerary/SKILL.md
 examples/                    # サンプル（中身は架空です）
+install.sh                   # インストール用スクリプト
 tests/
 ```
 
@@ -82,7 +96,7 @@ tests/
 python3 -m unittest discover -s tests -v
 ```
 
-テンプレートやサンプルの JSON を変えたときは、サンプルの HTML も作り直してコミットしてください。CI（GitHub Actions）で、テスト、サンプルが最新かどうか、テンプレートの JavaScript の構文をチェックしています。
+テンプレートやサンプルの JSON を変えたときは、サンプルの HTML も作り直してコミットしてください。CI（GitHub Actions）で、テスト、サンプルが最新かどうか、テンプレートの JavaScript の構文と、`install.sh` のインストール・削除（macOS と Linux）をチェックしています。
 
 ```bash
 python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html

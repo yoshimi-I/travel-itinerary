@@ -45,3 +45,44 @@ jobs:
           Path("template-check.js").write_text("\n".join(scripts), encoding="utf-8")
           EOF
           node --check template-check.js
+
+  install:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        if: runner.os == 'Linux'
+        run: shellcheck install.sh
+
+      - name: Install from the checkout, then uninstall
+        run: |
+          export HOME="$RUNNER_TEMP/home-local"
+          ./install.sh
+          test -f "$HOME/.claude/skills/travel-itinerary/SKILL.md"
+          test -f "$HOME/.agents/skills/travel-itinerary/scripts/build.py"
+          ./install.sh   # 2 回目は更新として動く
+          ./install.sh --uninstall
+          test ! -e "$HOME/.claude/skills/travel-itinerary"
+          test ! -e "$HOME/.agents/skills/travel-itinerary"
+
+      - name: Install through a pipe (like curl | bash)
+        run: |
+          export HOME="$RUNNER_TEMP/home-pipe"
+          mkdir -p "$HOME"
+          git archive --format=tar.gz --prefix=travel-itinerary-main/ HEAD -o "$RUNNER_TEMP/src.tar.gz"
+          cd "$RUNNER_TEMP"
+          TRAVEL_ITINERARY_ARCHIVE_URL="file://$RUNNER_TEMP/src.tar.gz" bash < "$GITHUB_WORKSPACE/install.sh"
+          test -f "$HOME/.claude/skills/travel-itinerary/assets/template.html"
+          python3 "$HOME/.claude/skills/travel-itinerary/scripts/build.py" "$GITHUB_WORKSPACE/examples/sample-trip.json" out/index.html
+
+      - name: Refuse to overwrite a skill it did not install
+        run: |
+          export HOME="$RUNNER_TEMP/home-foreign"
+          mkdir -p "$HOME/.claude/skills/travel-itinerary"
+          touch "$HOME/.claude/skills/travel-itinerary/SKILL.md"
+          if ./install.sh --claude; then echo "上書きしてしまった" && exit 1; fi
+          test -f "$HOME/.claude/skills/travel-itinerary/SKILL.md"

@@ -7,7 +7,7 @@ description: 旅のしおりを作る。旅行の行き先・日程・メンバ�
 
 ユーザーに質問して旅の情報を集め、メンバーに配れる HTML のしおりを作る。
 
-このファイルがあるディレクトリを `<skill_dir>` と呼ぶ（このリポジトリでは `.agents/skills/travel-itinerary`）。
+このファイルがあるディレクトリを `<skill_dir>` と呼ぶ（インストールした場合は `~/.claude/skills/travel-itinerary` や `~/.agents/skills/travel-itinerary`、リポジトリ内なら `.agents/skills/travel-itinerary`）。コマンドを実行するときは、`<skill_dir>` を実際の絶対パスに置き換える。
 
 | ファイル | 用途 |
 |----------|------|
@@ -48,7 +48,7 @@ Web 検索（Claude Code なら `WebSearch` / `WebFetch`）が使えるときだ
 
 `references/schema.md` を読み、集めた内容を JSON にする。
 
-- 保存先: `output/<slug>/itinerary.json`（`<slug>` は英小文字とハイフン。例: `2026-08-hokkaido`）
+- 保存先: 今いるディレクトリの `output/<slug>/itinerary.json`（`<slug>` は英小文字とハイフン。例: `2026-08-hokkaido`）。ユーザーが別の場所を指定したら、そちらに保存する
 - 必須は `trip`（`title` / `destination` / `startDate` / `endDate`）と `days`
 - 選ばれなかったオプションのセクションは書かない（タブが出なくなる）
 - 場所には `mapQuery` を付ける（地図のリンクになる）
@@ -81,4 +81,9 @@ python3 <skill_dir>/scripts/build.py output/<slug>/itinerary.json output/<slug>/
 
 - 決まっていないことを、決まったことのように書かない。AI が提案した予定は、確認のときに提案だと伝える
 - 営業時間・料金・予報などは、調べられなかったら「要確認」と書く
-- `output/` は git で管理しない（個人情報が入るため）。しおりをリポジトリにコミットしない
+- しおりをコミットしない（個人情報が入るため）。今いるディレクトリが git リポジトリなら、`output/` を `.gitignore` に入れるか、ユーザーに確認する
+
+## エージェントごとの補足
+
+- **Claude Code**: 選択肢で答えられる質問（オプションを入れるか、AI に日程案を作らせるか、最後の確認など）は `AskUserQuestion` を使う。オプションの選択は `multiSelect: true` にする。自由に答える質問は、通常のメッセージでまとめて聞く。天気予報と参考ブログは `WebSearch` で探し、`WebFetch` で実際に開いて確かめる
+- **Codex**: 質問はすべて通常のメッセージで聞く。Web 検索が使えない設定のときは、天気予報（平年の気候で代わりにする）と参考ブログ（省略する）について、そのことをユーザーに伝える
