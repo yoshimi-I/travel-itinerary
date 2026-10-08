@@ -5,9 +5,9 @@
 
 AI エージェントに質問してもらいながら、旅のしおりを作るための skill です。Claude Code、Codex、Kiro で動きます。
 
-旅行の幹事をやると、日程や集合場所、持ち物をまとめてみんなに共有するのが地味に手間です。これを使うと、AI の質問に答えていくだけで、スマホで見やすい 1 ファイルの HTML のしおりができあがります。そのまま LINE やメールで送れます。
+旅行の幹事をやると、日程や集合場所、持ち物をまとめてみんなに共有するのが地味に手間です。これを使うと、AI の質問に答えていくだけで、スマホで見やすい HTML のしおりと、LINE で送ったり印刷したりできる PDF のしおりができあがります。
 
-できあがりはこんな感じです: [examples/sample-trip.html](examples/sample-trip.html)（ダウンロードしてブラウザで開いてください）
+できあがりはこんな感じです: [HTML](examples/sample-trip.html)（ダウンロードしてブラウザで開いてください）／ [PDF](examples/sample-trip.pdf)
 
 ## インストール
 
@@ -37,7 +37,7 @@ macOS と Linux（Windows は WSL）で動きます。Python 3 があると、�
 
 あとは、足りないことだけを選択肢で聞かれます（予算の目安や、天気・雨天プラン・持ち物・参考ブログを入れるかなど）。夜ごはんのお店や空いた時間の過ごし方、雨の日のプランは AI が調べて提案してくれるので、最後にまとめて見て「この内容で作る」を選べば完成です。気になるところだけ変えることもできます。
 
-しおりは、起動したフォルダの `output/<旅の名前>/index.html` に作られます。直したいところは、そのまま AI に伝えれば作り直してくれます。
+しおりは、起動したフォルダの `output/<旅の名前>/` に、`index.html`（HTML）と `itinerary.pdf`（PDF）として作られます。どちらを作るかは途中で選べます。直したいところは、そのまま AI に伝えれば作り直してくれます。
 
 ## しおりの中身
 
@@ -53,15 +53,24 @@ macOS と Linux（Windows は WSL）で動きます。Python 3 があると、�
 
 天気は、出発が近ければ天気予報を調べて載せます。まだ先の旅行なら、その時期の平年の気候を目安として載せます。参考ブログと天気予報は Web 検索を使うので、検索できない環境では省略されます。参考ブログは、AI が実際にページを開いて確かめたものだけが載ります。
 
-印刷すると全部のタブが順番に出るので、紙で配りたいときは PDF にして使えます。
+## HTML と PDF
+
+| | HTML | PDF |
+|--|------|-----|
+| 向いている使い方 | 自分のスマホやパソコンで見る | LINE で送る、印刷して配る |
+| 見た目 | タブで切り替え、日ごとに折りたたみ | 余白を詰めて、全部を順番に並べた A4 の紙面 |
+| 持ち物のチェック | できる（ブラウザに保存される） | 印刷してペンで |
+| 晴れ / 雨天 | ボタンで切り替え | 雨天プランを日程の下に並べて表示 |
+
+LINE では HTML ファイルを送れないので、LINE で共有するときは PDF を使ってください。PDF は Chrome（または Chromium・Edge）で作ります。見つからないときは、印刷用の HTML を作るので、ブラウザで開いて「PDF に保存」してください。
 
 ## しくみ
 
 AI は回答をもとに `itinerary.json` を書くだけで、見た目はテンプレート（`assets/template.html`）が決めています。なので、どのエージェントで作っても同じデザインになります。
 
 ```bash
-# JSON から HTML を作る（Python 3 の標準ライブラリだけで動きます）
-python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json output/sample/index.html
+# JSON から HTML と PDF を作る（Python 3 の標準ライブラリだけで動きます。PDF には Chrome が必要です）
+python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json output/sample/index.html --pdf output/sample/itinerary.pdf
 ```
 
 JSON の書き方は [schema.md](.agents/skills/travel-itinerary/references/schema.md) にまとめています。
@@ -75,8 +84,10 @@ Kiro のカスタムエージェントは、skill を自動では読み込みま
 ├── SKILL.md                 # 手順
 ├── references/interview.md  # 質問の進め方
 ├── references/schema.md     # JSON の仕様
-├── assets/template.html     # しおりのテンプレート
-├── scripts/build.py         # JSON を HTML にする
+├── assets/template.html     # しおりのテンプレート（HTML）
+├── assets/print.css         # PDF のレイアウト
+├── scripts/build.py         # JSON から HTML・PDF を作る
+├── scripts/print_layout.py  # PDF 用の紙面を組み立てる
 ├── scripts/check_update.sh  # 新しいバージョンがあるかの確認
 └── VERSION
 .claude/skills/travel-itinerary/SKILL.md  # Claude Code 用の入口
@@ -99,7 +110,7 @@ python3 -m unittest discover -s tests -v
 テンプレートやサンプルの JSON を変えたときは、サンプルの HTML も作り直してコミットしてください。使う人に更新を届けたいときは、`.agents/skills/travel-itinerary/VERSION` の番号を上げて main に push します。タグ（`v0.2.0` など）と GitHub の Release が自動で作られ、インストールした人には、次に使ったときに更新のお知らせが出ます。CI（GitHub Actions）で、テスト、サンプルが最新かどうか、テンプレートの JavaScript の構文と、`install.sh` のインストール・削除（macOS と Linux）をチェックしています。
 
 ```bash
-python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html
+python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html --pdf examples/sample-trip.pdf
 ```
 
 英語版は、これからやる予定です。Issue や Pull Request は気軽にどうぞ。

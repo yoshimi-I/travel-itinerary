@@ -30,6 +30,12 @@ jobs:
             exit 1
           fi
 
+      - name: Build the sample PDF
+        run: |
+          python .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json --pdf "$RUNNER_TEMP/sample.pdf"
+          head -c 5 "$RUNNER_TEMP/sample.pdf" | grep -q '%PDF-'
+          test "$(wc -c < "$RUNNER_TEMP/sample.pdf")" -gt 10000
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

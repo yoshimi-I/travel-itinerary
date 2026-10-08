@@ -13,8 +13,9 @@ description: 旅のしおりを作る。旅行の行き先・日程・メンバ�
 |----------|------|
 | `<skill_dir>/references/interview.md` | 質問の進め方と質問項目 |
 | `<skill_dir>/references/schema.md` | しおり JSON の仕様 |
-| `<skill_dir>/assets/template.html` | しおりの HTML テンプレート |
-| `<skill_dir>/scripts/build.py` | JSON を埋め込んで HTML を出力するスクリプト |
+| `<skill_dir>/assets/template.html` | しおりの HTML テンプレート（画面用） |
+| `<skill_dir>/assets/print.css` | PDF 用のレイアウト |
+| `<skill_dir>/scripts/build.py` | JSON から HTML・PDF を作るスクリプト |
 | `<skill_dir>/scripts/check_update.sh` | 新しいバージョンがあるかを確認するスクリプト |
 
 ## 手順
@@ -69,28 +70,37 @@ Web 検索（Claude Code なら `WebSearch` / `WebFetch`）が使えるときだ
 - 場所には `mapQuery` を付ける（地図のリンクになる）
 - 移動・宿に外部リンクがあれば `links` に入れる。ユーザーがくれたリンクに加えて、Web 検索が使えるなら、使う航空会社・船会社・鉄道会社の**運航状況のページ**を探して足してよい（実際に開いて確かめたものだけ）。予約確認ページの URL は、個人情報が含まれることがあるので入れない
 
-### 5. HTML をビルドする
+### 5. HTML・PDF を作る
+
+ステップ 2 で選ばれた形式で作る（どちらも選ばれていなければ HTML）。
 
 ```bash
+# HTML と PDF の両方
+python3 <skill_dir>/scripts/build.py output/<slug>/itinerary.json output/<slug>/index.html --pdf output/<slug>/itinerary.pdf
+# HTML だけ
 python3 <skill_dir>/scripts/build.py output/<slug>/itinerary.json output/<slug>/index.html
+# PDF だけ
+python3 <skill_dir>/scripts/build.py output/<slug>/itinerary.json --pdf output/<slug>/itinerary.pdf
 ```
 
 - エラーが出たら、メッセージに従って JSON を直し、もう一度実行する
-- **python3 が使えない場合**: `assets/template.html` をコピーし、`/*__ITINERARY_DATA__*/` を JSON で置き換えて `output/<slug>/index.html` に保存する。そのとき JSON 内の `<` はすべて `\u003c` に置き換える（`</script>` で埋め込みが途切れないようにするため）
+- PDF は Chrome（または Chromium・Edge）で作る。見つからないときは `itinerary.print.html` ができるので、それをブラウザで開いて印刷から「PDF に保存」するよう案内する
+- **python3 が使えない場合**: HTML は、`assets/template.html` をコピーし、`/*__ITINERARY_DATA__*/` を JSON で置き換えて `output/<slug>/index.html` に保存する。そのとき JSON 内の `<` はすべて `\u003c` に置き換える（`</script>` で埋め込みが途切れないようにするため）。PDF は、その HTML をブラウザで開いて印刷から「PDF に保存」するよう案内する
 
 ### 6. 仕上げ
 
 ユーザーに次を伝える:
 
-- 生成したファイルのパス（`output/<slug>/index.html`）と、ブラウザで開けば確認できること
+- 生成したファイルのパス（`index.html` / `itinerary.pdf`）
 - 配り方:
-  - HTML ファイルをそのまま送る（LINE・メールなど）。外部ファイルに依存しないので、受け取った人もそのまま開ける
-  - 紙で配るなら、ブラウザで印刷して PDF にする（全タブが順番に印刷される）
+  - LINE で送るなら PDF。LINE では HTML ファイルを送れない
+  - HTML は、メールや AirDrop、共有フォルダなどで送る。外部ファイルに依存しないので、受け取った人もそのまま開ける（iPhone のファイルのプレビューでは表示できないことがある）
+  - 紙で配るなら PDF を印刷する
   - GitHub Pages などで公開する場合は、URL を知っていれば誰でも見られることに注意する
 - 個人情報の注意: 電話番号・予約番号などを入れた場合は、公開しないこと
 - 修正したいところがあれば、言ってもらえれば直せること
 
-修正を頼まれたら、`itinerary.json` を直して手順 5 をやり直す。HTML を直接編集しない。
+修正を頼まれたら、`itinerary.json` を直して手順 5 をやり直す。HTML や PDF を直接編集しない。
 
 ## 守ること
 

@@ -1,0 +1,93 @@
+/* PDF 用のしおり。A4 縦、余白を詰めて、1 ページに多く載せる */
+@page { size: A4; margin: 11mm 12mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0; color: #111;
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", Meiryo, sans-serif;
+  font-size: 9.5pt; line-height: 1.5;
+  font-variant-numeric: tabular-nums; font-feature-settings: "palt";
+}
+a { color: inherit; text-decoration: underline; text-decoration-thickness: .5pt; text-underline-offset: 1.5pt; }
+b { font-weight: 700; }
+p { margin: 0; }
+.mono { font-variant-numeric: tabular-nums; }
+.sub { display: block; color: #555; font-size: 8.5pt; overflow-wrap: anywhere; }
+.links { display: block; font-size: 8pt; }
+.links a { margin-right: 8pt; }
+.tag { display: inline-block; border: .6pt solid #777; padding: 0 3pt; font-size: 7.5pt; line-height: 1.4; color: #333; vertical-align: 1pt; }
+a.map { font-size: 8pt; white-space: nowrap; }
+
+header { border-bottom: 1.5pt solid #111; padding-bottom: 5pt; margin-bottom: 8pt; }
+.eyebrow { font-size: 7pt; letter-spacing: .25em; color: #666; }
+h1 { font-size: 17pt; line-height: 1.25; margin: 2pt 0 3pt; }
+.meta { font-size: 9.5pt; }
+.summary { color: #555; font-size: 9pt; margin-top: 2pt; }
+
+section { margin-top: 10pt; }
+h2 {
+  font-size: 11pt; margin: 0 0 5pt; padding-bottom: 2pt;
+  border-bottom: .8pt solid #111; break-after: avoid; page-break-after: avoid;
+}
+h3 { font-size: 9pt; margin: 0 0 3pt; letter-spacing: .05em; }
+
+/* 枠で囲んだまとまりを 2 列に並べる */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt; align-items: start; }
+.box { border: .6pt solid #bbb; padding: 5pt 7pt; break-inside: avoid; page-break-inside: avoid; }
+.box.wide { grid-column: 1 / -1; }
+/* 長くなりやすいまとまり（持ち物など）は、ページをまたいでよい */
+.box.flow { break-inside: auto; page-break-inside: auto; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.box.flow h3, .box .cat { break-after: avoid; page-break-after: avoid; }
+
+dl.kv { display: grid; grid-template-columns: auto 1fr; gap: 1pt 8pt; margin: 0; }
+dl.kv dt { color: #555; font-size: 8.5pt; }
+dl.kv dd { margin: 0; overflow-wrap: anywhere; }
+
+ul.rows, ul.inline, ul.amounts, ul.checks, ul.bullets, ul.cols2 { list-style: none; margin: 0; padding: 0; }
+ul.rows li { padding: 2.5pt 0; border-top: .4pt solid #ddd; break-inside: avoid; }
+ul.rows li:first-child { border-top: 0; padding-top: 0; }
+ul.inline li { display: inline-block; margin-right: 10pt; }
+ul.amounts li { display: flex; justify-content: space-between; gap: 8pt; padding: 1pt 0; }
+ul.amounts li span:first-child { color: #555; }
+ul.amounts li.total { border-top: .8pt solid #111; margin-top: 2pt; padding-top: 2pt; font-weight: 700; }
+ul.amounts li.total span:first-child { color: #111; }
+ul.bullets { margin-top: 3pt; }
+ul.bullets li { position: relative; padding-left: 9pt; }
+ul.bullets li::before { content: ""; position: absolute; left: 1pt; top: .75em; width: 4pt; height: .6pt; background: #111; }
+ul.cols2 { columns: 2; column-gap: 12pt; }
+ul.cols2 li { break-inside: avoid; padding: 2pt 0 4pt; }
+
+/* 日程 */
+.day { margin-bottom: 7pt; }
+.day-head {
+  display: flex; align-items: baseline; gap: 8pt;
+  background: #111; color: #fff; padding: 2.5pt 7pt; font-size: 10pt;
+  break-after: avoid; page-break-after: avoid;
+}
+.day-no { font-size: 8pt; letter-spacing: .15em; }
+.day-note { font-size: 8.5pt; color: #555; padding: 3pt 0 0; }
+table { border-collapse: collapse; width: 100%; }
+table.timeline td { padding: 2.5pt 4pt; border-bottom: .4pt solid #ddd; vertical-align: top; }
+table.timeline tr { break-inside: avoid; page-break-inside: avoid; }
+table.timeline td.time { width: 38pt; font-weight: 700; white-space: nowrap; }
+table.timeline td.map-cell { width: 26pt; text-align: right; }
+.rain { border: .8pt dashed #111; margin-top: 4pt; padding: 3pt 6pt 1pt; break-inside: avoid; }
+.rain-head { font-weight: 700; font-size: 9pt; }
+.rain table.timeline td { border-bottom-style: dashed; }
+
+/* 天気 */
+.note { font-size: 8.5pt; color: #555; margin-bottom: 3pt; }
+table.grid-table th, table.grid-table td { border: .4pt solid #bbb; padding: 2pt 4pt; text-align: left; vertical-align: top; }
+table.grid-table th { background: #eee; font-size: 8pt; font-weight: 700; }
+
+/* 持ち物（チェック欄つき） */
+.cat { font-size: 7.5pt; color: #666; letter-spacing: .1em; margin-top: 3pt; }
+ul.checks { columns: 2; column-gap: 8pt; }
+ul.checks li { position: relative; padding-left: 12pt; break-inside: avoid; }
+ul.checks li::before { content: ""; position: absolute; left: 0; top: .3em; width: 7pt; height: 7pt; border: .8pt solid #111; }
+
+.url { display: block; font-size: 7pt; color: #777; overflow-wrap: anywhere; }
+
+@media screen {
+  body { max-width: 210mm; margin: 0 auto; padding: 11mm 12mm; }
+}

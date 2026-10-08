@@ -73,6 +73,55 @@ class ValidateTest(unittest.TestCase):
         self.assertTrue(any("packing" in e for e in errors_for(data)))
 
 
+spec_pl = importlib.util.spec_from_file_location("print_layout", SKILL_DIR / "scripts" / "print_layout.py")
+print_layout = importlib.util.module_from_spec(spec_pl)
+spec_pl.loader.exec_module(print_layout)
+
+
+class ArgsTest(unittest.TestCase):
+    def test_html_only(self):
+        self.assertEqual(build.parse_args(["b", "in.json", "out.html"]), (Path("in.json"), Path("out.html"), None))
+
+    def test_pdf_only(self):
+        self.assertEqual(build.parse_args(["b", "in.json", "--pdf", "o.pdf"]), (Path("in.json"), None, Path("o.pdf")))
+
+    def test_both(self):
+        self.assertEqual(build.parse_args(["b", "in.json", "o.html", "--pdf", "o.pdf"]), (Path("in.json"), Path("o.html"), Path("o.pdf")))
+
+    def test_needs_an_output(self):
+        self.assertIsNone(build.parse_args(["b", "in.json"]))
+        self.assertIsNone(build.parse_args(["b", "in.json", "--pdf"]))
+
+
+class PrintLayoutTest(unittest.TestCase):
+    def test_renders_sample_sections(self):
+        data = json.loads(SAMPLE.read_text(encoding="utf-8"))
+        html = print_layout.render(data)
+        for title in ("概要", "日程", "プラン", "天気", "持ち物", "メモ", "参考ブログ", "雨天時"):
+            self.assertIn(title, html)
+        self.assertNotIn("<script", html)
+
+    def test_escapes_text(self):
+        data = copy.deepcopy(MINIMAL)
+        data["trip"]["title"] = "<img src=x onerror=alert(1)>"
+        data["days"][0]["items"] = [{"title": "<b>x</b>", "mapQuery": "a&b"}]
+        html = print_layout.render(data)
+        self.assertNotIn("<img src=x", html)
+        self.assertIn("&lt;b&gt;x&lt;/b&gt;", html)
+
+    def test_skips_empty_sections_and_unsafe_links(self):
+        data = copy.deepcopy(MINIMAL)
+        data["articles"] = [{"title": "x", "url": "javascript:alert(1)"}]
+        html = print_layout.render(data)
+        self.assertNotIn("参考ブログ", html)
+        self.assertNotIn("javascript:", html)
+
+    def test_note_becomes_bullets(self):
+        data = copy.deepcopy(MINIMAL)
+        data["budget"] = {"note": "一つ目。二つ目。"}
+        self.assertIn('<ul class="bullets"><li>一つ目</li><li>二つ目</li></ul>', print_layout.render(data))
+
+
 class VersionTest(unittest.TestCase):
     def test_version_is_semver(self):
         version = (SKILL_DIR / "VERSION").read_text(encoding="utf-8").strip()
