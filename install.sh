@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
-# Travel Itinerary の skill を Claude Code と Codex にインストールする。
+# Travel Itinerary の skill を Claude Code・Codex・Kiro にインストールする。
 #
 #   curl -fsSL https://raw.githubusercontent.com/yoshimi-I/travel-itinerary/main/install.sh | bash
 #   ./install.sh               # clone したリポジトリから入れる
 #   ./install.sh --claude      # Claude Code だけ
 #   ./install.sh --codex       # Codex だけ
+#   ./install.sh --kiro        # Kiro だけ（--claude --kiro のように組み合わせも可）
 #   ./install.sh --uninstall   # 削除する
 #
 # 環境変数:
 #   TRAVEL_ITINERARY_REF   ダウンロードするブランチ・タグ（既定: main）
 #   CLAUDE_CONFIG_DIR      Claude Code の設定ディレクトリ（既定: ~/.claude）
 #   CODEX_SKILLS_DIR       Codex の skill ディレクトリ（既定: ~/.agents/skills）
+#   KIRO_SKILLS_DIR        Kiro の skill ディレクトリ（既定: ~/.kiro/skills）
 #   TRAVEL_ITINERARY_ARCHIVE_URL  ダウンロードする tar.gz の URL（ミラーやテスト用）
 
 set -euo pipefail
@@ -24,12 +26,14 @@ main() {
   local ref="${TRAVEL_ITINERARY_REF:-main}"
   local claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"
   local codex_dir="${CODEX_SKILLS_DIR:-$HOME/.agents/skills}"
-  local want_claude=1 want_codex=1 uninstall=0
+  local kiro_dir="${KIRO_SKILLS_DIR:-$HOME/.kiro/skills}"
+  local want_claude=0 want_codex=0 want_kiro=0 uninstall=0
 
   while [ $# -gt 0 ]; do
     case "$1" in
-      --claude) want_claude=1; want_codex=0 ;;
-      --codex) want_claude=0; want_codex=1 ;;
+      --claude) want_claude=1 ;;
+      --codex) want_codex=1 ;;
+      --kiro) want_kiro=1 ;;
       --uninstall) uninstall=1 ;;
       -h | --help) usage; return 0 ;;
       *) error "知らないオプションです: ${1}（--help で使い方を表示）" ;;
@@ -37,9 +41,14 @@ main() {
     shift
   done
 
+  # どれも指定されなければ全部に入れる
+  if [ $((want_claude + want_codex + want_kiro)) -eq 0 ]; then
+    want_claude=1 want_codex=1 want_kiro=1
+  fi
   local targets=()
   [ "$want_claude" -eq 1 ] && targets+=("Claude Code|$claude_dir/$SKILL")
   [ "$want_codex" -eq 1 ] && targets+=("Codex|$codex_dir/$SKILL")
+  [ "$want_kiro" -eq 1 ] && targets+=("Kiro|$kiro_dir/$SKILL")
 
   if [ "$uninstall" -eq 1 ]; then
     local t
@@ -63,28 +72,30 @@ main() {
     warn "python3 が見つかりません。なくても使えますが、入れておくとしおりの作成が安定します。"
   fi
 
-  cat <<EOF
-
-インストールしました。しおりを作りたいフォルダでエージェントを起動して、次のように話しかけてください。
-  Claude Code: /travel-itinerary
-  Codex:       \$travel-itinerary
-（「旅のしおりを作りたい」と話しかけるだけでも始まります）
-EOF
+  info ""
+  info "インストールしました。しおりを作りたいフォルダでエージェントを起動して、次のように話しかけてください。"
+  [ "$want_claude" -eq 1 ] && info "  Claude Code: /travel-itinerary"
+  # shellcheck disable=SC2016
+  [ "$want_codex" -eq 1 ] && info '  Codex:       $travel-itinerary'
+  [ "$want_kiro" -eq 1 ] && info "  Kiro:        /travel-itinerary"
+  info "（「旅のしおりを作りたい」と話しかけるだけでも始まります）"
 }
 
 usage() {
   cat <<'EOF'
-使い方: install.sh [--claude | --codex] [--uninstall]
+使い方: install.sh [--claude] [--codex] [--kiro] [--uninstall]
 
-  オプションなし  Claude Code と Codex の両方にインストール（もう一度実行すると更新）
-  --claude        Claude Code だけ
-  --codex         Codex だけ
+  オプションなし  Claude Code・Codex・Kiro のすべてにインストール（もう一度実行すると更新）
+  --claude        Claude Code に入れる
+  --codex         Codex に入れる
+  --kiro          Kiro に入れる（組み合わせて指定できます）
   --uninstall     削除する
 
 環境変数:
   TRAVEL_ITINERARY_REF   ダウンロードするブランチ・タグ（既定: main）
   CLAUDE_CONFIG_DIR      Claude Code の設定ディレクトリ（既定: ~/.claude）
   CODEX_SKILLS_DIR       Codex の skill ディレクトリ（既定: ~/.agents/skills）
+  KIRO_SKILLS_DIR        Kiro の skill ディレクトリ（既定: ~/.kiro/skills）
 EOF
 }
 

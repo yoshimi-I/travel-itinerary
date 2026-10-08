@@ -64,10 +64,20 @@ jobs:
           ./install.sh
           test -f "$HOME/.claude/skills/travel-itinerary/SKILL.md"
           test -f "$HOME/.agents/skills/travel-itinerary/scripts/build.py"
+          test -f "$HOME/.kiro/skills/travel-itinerary/references/schema.md"
           ./install.sh   # 2 回目は更新として動く
           ./install.sh --uninstall
           test ! -e "$HOME/.claude/skills/travel-itinerary"
           test ! -e "$HOME/.agents/skills/travel-itinerary"
+          test ! -e "$HOME/.kiro/skills/travel-itinerary"
+
+      - name: Install only the selected agents
+        run: |
+          export HOME="$RUNNER_TEMP/home-select"
+          ./install.sh --codex --kiro
+          test ! -e "$HOME/.claude/skills/travel-itinerary"
+          test -f "$HOME/.agents/skills/travel-itinerary/SKILL.md"
+          test -f "$HOME/.kiro/skills/travel-itinerary/SKILL.md"
 
       - name: Install through a pipe (like curl | bash)
         run: |

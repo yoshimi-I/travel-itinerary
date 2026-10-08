@@ -7,7 +7,7 @@ description: 旅のしおりを作る。旅行の行き先・日程・メンバ�
 
 ユーザーに質問して旅の情報を集め、メンバーに配れる HTML のしおりを作る。
 
-このファイルがあるディレクトリを `<skill_dir>` と呼ぶ（インストールした場合は `~/.claude/skills/travel-itinerary` や `~/.agents/skills/travel-itinerary`、リポジトリ内なら `.agents/skills/travel-itinerary`）。コマンドを実行するときは、`<skill_dir>` を実際の絶対パスに置き換える。
+このファイルがあるディレクトリを `<skill_dir>` と呼ぶ（インストールした場合は `~/.claude/skills/travel-itinerary`・`~/.agents/skills/travel-itinerary`・`~/.kiro/skills/travel-itinerary` のどれか、リポジトリ内なら `.agents/skills/travel-itinerary`）。コマンドを実行するときは、`<skill_dir>` を実際の絶対パスに置き換える。
 
 | ファイル | 用途 |
 |----------|------|
@@ -86,4 +86,5 @@ python3 <skill_dir>/scripts/build.py output/<slug>/itinerary.json output/<slug>/
 ## エージェントごとの補足
 
 - **Claude Code**: 選択肢で答えられる質問（オプションを入れるか、AI に日程案を作らせるか、最後の確認など）は `AskUserQuestion` を使う。オプションの選択は `multiSelect: true` にする。自由に答える質問は、通常のメッセージでまとめて聞く。天気予報と参考ブログは `WebSearch` で探し、`WebFetch` で実際に開いて確かめる
+- **Kiro**: 質問はすべて通常のメッセージで聞く。Web 検索・Web ページ取得のツールが使えるときは、それで天気予報と参考ブログを調べる。使えないときは、天気予報（平年の気候で代わりにする）と参考ブログ（省略する）について、そのことをユーザーに伝える
 - **Codex**: 質問はすべて通常のメッセージで聞く。Web 検索が使えない設定のときは、天気予報（平年の気候で代わりにする）と参考ブログ（省略する）について、そのことをユーザーに伝える

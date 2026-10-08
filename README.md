@@ -3,7 +3,7 @@
 [![CI](https://github.com/yoshimi-I/travel-itinerary/actions/workflows/ci.yml/badge.svg)](https://github.com/yoshimi-I/travel-itinerary/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-AI エージェントに質問してもらいながら、旅のしおりを作るための skill です。Claude Code と Codex で動きます。
+AI エージェントに質問してもらいながら、旅のしおりを作るための skill です。Claude Code、Codex、Kiro で動きます。
 
 旅行の幹事をやると、日程や集合場所、持ち物をまとめてみんなに共有するのが地味に手間です。これを使うと、AI の質問に答えていくだけで、スマホで見やすい 1 ファイルの HTML のしおりができあがります。そのまま LINE やメールで送れます。
 
@@ -11,13 +11,13 @@ AI エージェントに質問してもらいながら、旅のしおりを作�
 
 ## インストール
 
-ターミナルで次を実行すると、Claude Code と Codex の両方に入ります。
+ターミナルで次を実行すると、Claude Code・Codex・Kiro のすべてに入ります。
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yoshimi-I/travel-itinerary/main/install.sh | bash
 ```
 
-`~/.claude/skills/` と `~/.agents/skills/` に skill がコピーされるので、どのフォルダからでも使えます。片方だけに入れたいときは `--claude` か `--codex` を付けてください。もう一度実行すると最新版に更新され、`--uninstall` で削除できます。
+`~/.claude/skills/`、`~/.agents/skills/`（Codex）、`~/.kiro/skills/` に skill がコピーされるので、どのフォルダからでも使えます。使うものだけに入れたいときは、`--claude`・`--codex`・`--kiro` を付けてください（`--claude --kiro` のように組み合わせもできます）。もう一度実行すると最新版に更新され、`--uninstall` で削除できます。
 
 clone して使うこともできます。
 
@@ -31,7 +31,7 @@ macOS と Linux（Windows は WSL）で動きます。Python 3 があると、�
 
 ## 使い方
 
-しおりを保存したいフォルダでエージェントを起動します。Claude Code なら `/travel-itinerary`、Codex なら `$travel-itinerary` で始まります。「旅のしおりを作りたい」と話しかけるだけでも大丈夫です。
+しおりを保存したいフォルダでエージェントを起動します。Claude Code と Kiro なら `/travel-itinerary`、Codex なら `$travel-itinerary` で始まります。「旅のしおりを作りたい」と話しかけるだけでも大丈夫です。
 
 最初に「もう決まっていることはありますか？」と聞かれるので、予約済みの飛行機や宿、行きたい場所、予算など、分かっていることを書いてください。あとは足りないところだけを、次の順番で少しずつ聞かれます。
 
@@ -71,7 +71,9 @@ python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.js
 
 JSON の書き方は [schema.md](.agents/skills/travel-itinerary/references/schema.md) にまとめています。
 
-skill の本体は `.agents/skills/travel-itinerary/` にあります。`install.sh` は、これを Claude Code と Codex の skill のフォルダにそのままコピーします。リポジトリの `.claude/skills/travel-itinerary/` は、clone したリポジトリの中で Claude Code を使うときのための入口です。
+skill の本体は `.agents/skills/travel-itinerary/` にあります。`install.sh` は、これを各エージェントの skill のフォルダにそのままコピーします。リポジトリの `.claude/skills/` と `.kiro/skills/` にあるものは、clone したリポジトリの中で Claude Code や Kiro を使うときのための入口です。
+
+Kiro のカスタムエージェントは、skill を自動では読み込みません。カスタムエージェントで使う場合は、設定の `resources` に `skill://~/.kiro/skills/travel-itinerary/SKILL.md` を追加してください（標準のエージェントならそのまま使えます）。
 
 ```
 .agents/skills/travel-itinerary/
@@ -80,7 +82,8 @@ skill の本体は `.agents/skills/travel-itinerary/` にあります。`install
 ├── references/schema.md     # JSON の仕様
 ├── assets/template.html     # しおりのテンプレート
 └── scripts/build.py         # JSON を HTML にする
-.claude/skills/travel-itinerary/SKILL.md
+.claude/skills/travel-itinerary/SKILL.md  # Claude Code 用の入口
+.kiro/skills/travel-itinerary/SKILL.md    # Kiro 用の入口
 examples/                    # サンプル（中身は架空です）
 install.sh                   # インストール用スクリプト
 tests/
@@ -102,7 +105,7 @@ python3 -m unittest discover -s tests -v
 python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html
 ```
 
-Kiro への対応と英語版は、これからやる予定です。Issue や Pull Request は気軽にどうぞ。
+英語版は、これからやる予定です。Issue や Pull Request は気軽にどうぞ。
 
 ## License
 
