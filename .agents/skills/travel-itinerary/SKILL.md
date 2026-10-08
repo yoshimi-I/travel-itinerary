@@ -1,0 +1,71 @@
+---
+name: travel-itinerary
+description: 旅のしおりを作る。旅行の行き先・日程・メンバー・プラン・持ち物・天気・雨天時のプランをユーザーに質問し、その回答から、タブで切り替えられて配布できる 1 ファイルの HTML のしおりを生成する。「旅のしおり」「しおりを作りたい」「旅行の計画」「旅程表」「travel itinerary」などと言われたときに使う。旅行と関係のない資料の作成には使わない。
+---
+
+# 旅のしおり作成
+
+ユーザーに質問して旅の情報を集め、メンバーに配れる HTML のしおりを作る。
+
+このファイルがあるディレクトリを `<skill_dir>` と呼ぶ（このリポジトリでは `.agents/skills/travel-itinerary`）。
+
+| ファイル | 用途 |
+|----------|------|
+| `<skill_dir>/references/interview.md` | 質問の進め方と質問項目 |
+| `<skill_dir>/references/schema.md` | しおり JSON の仕様 |
+| `<skill_dir>/assets/template.html` | しおりの HTML テンプレート |
+| `<skill_dir>/scripts/build.py` | JSON を埋め込んで HTML を出力するスクリプト |
+
+## 手順
+
+### 1. ヒアリング
+
+`references/interview.md` を読み、その手順で質問する。
+
+- セクション 1（基本情報）→ 2（日程・プラン）→ 3（オプション）の順に、セクションごとにまとめて聞く
+- 最後に内容をまとめて見せ、OK をもらってから次に進む
+
+### 2. 天気を調べる（天気のオプションを選んだ場合）
+
+- **出発日が約 2 週間以内**で、Web 検索が使えるなら、行き先の天気予報を調べる → `weather.source` は `"forecast"`、`checkedAt` に調べた日を書く
+- **それ以外**は、その時期の平年の気候（平均気温・雨の多さ）を目安として書く → `weather.source` は `"climate"`。推測で具体的な予報を書かない
+- どちらの場合も、`weather.links` に最新の予報を確認できるリンク（tenki.jp、気象庁など。海外なら現地の気象サイト）を入れる
+- 気温と季節から、服装のアドバイスを `clothing` と `note` に書く
+
+### 3. JSON を書く
+
+`references/schema.md` を読み、集めた内容を JSON にする。
+
+- 保存先: `output/<slug>/itinerary.json`（`<slug>` は英小文字とハイフン。例: `2026-08-hokkaido`）
+- 必須は `trip`（`title` / `destination` / `startDate` / `endDate`）と `days`
+- 選ばれなかったオプションのセクションは書かない（タブが出なくなる）
+- 場所には `mapQuery` を付ける（地図のリンクになる）
+
+### 4. HTML をビルドする
+
+```bash
+python3 <skill_dir>/scripts/build.py output/<slug>/itinerary.json output/<slug>/index.html
+```
+
+- エラーが出たら、メッセージに従って JSON を直し、もう一度実行する
+- **python3 が使えない場合**: `assets/template.html` をコピーし、`/*__ITINERARY_DATA__*/` を JSON で置き換えて `output/<slug>/index.html` に保存する。そのとき JSON 内の `<` はすべて `\u003c` に置き換える（`</script>` で埋め込みが途切れないようにするため）
+
+### 5. 仕上げ
+
+ユーザーに次を伝える:
+
+- 生成したファイルのパス（`output/<slug>/index.html`）と、ブラウザで開けば確認できること
+- 配り方:
+  - HTML ファイルをそのまま送る（LINE・メールなど）。外部ファイルに依存しないので、受け取った人もそのまま開ける
+  - 紙で配るなら、ブラウザで印刷して PDF にする（全タブが順番に印刷される）
+  - GitHub Pages などで公開する場合は、URL を知っていれば誰でも見られることに注意する
+- 個人情報の注意: 電話番号・予約番号などを入れた場合は、公開しないこと
+- 修正したいところがあれば、言ってもらえれば直せること
+
+修正を頼まれたら、`itinerary.json` を直して手順 4 をやり直す。HTML を直接編集しない。
+
+## 守ること
+
+- 決まっていないことを、決まったことのように書かない。AI が提案した予定は、確認のときに提案だと伝える
+- 営業時間・料金・予報などは、調べられなかったら「要確認」と書く
+- `output/` は git で管理しない（個人情報が入るため）。しおりをリポジトリにコミットしない

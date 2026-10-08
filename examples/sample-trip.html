@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>旅のしおり</title>
+<style>
+  :root {
+    --bg: #faf7f2;
+    --card: #ffffff;
+    --text: #2b2b2b;
+    --muted: #6f6a63;
+    --line: #e7e0d6;
+    --accent: #d9693a;
+    --accent-soft: #fbe9e0;
+    --rain: #3f7cc4;
+    --rain-soft: #e4eef9;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+    line-height: 1.6;
+  }
+  header.hero {
+    background: linear-gradient(135deg, #e07a4a, #c2502a);
+    color: #fff;
+    padding: 28px 20px 22px;
+  }
+  .hero .eyebrow { font-size: 13px; opacity: .85; letter-spacing: .08em; }
+  .hero h1 { margin: 4px 0 6px; font-size: 26px; line-height: 1.3; }
+  .hero .meta { font-size: 14px; opacity: .95; }
+  nav.tabs {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; gap: 4px; overflow-x: auto;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 10px;
+    scrollbar-width: none;
+  }
+  nav.tabs::-webkit-scrollbar { display: none; }
+  nav.tabs button {
+    flex: 0 0 auto;
+    border: 0; border-radius: 999px;
+    background: transparent; color: var(--muted);
+    font: inherit; font-size: 14px;
+    padding: 7px 14px; cursor: pointer;
+    white-space: nowrap;
+  }
+  nav.tabs button[aria-selected="true"] { background: var(--accent); color: #fff; font-weight: 600; }
+  main { max-width: 760px; margin: 0 auto; padding: 18px 14px 60px; }
+  section.panel { display: none; }
+  section.panel.active { display: block; }
+  section.panel > h2 { font-size: 20px; margin: 4px 0 14px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .card h3 { margin: 0 0 10px; font-size: 16px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  dl.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; }
+  dl.kv dt { color: var(--muted); font-size: 14px; }
+  dl.kv dd { margin: 0; }
+  ul.plain { list-style: none; margin: 0; padding: 0; }
+  ul.plain > li { padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  ul.plain > li:last-child { border-bottom: 0; }
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li {
+    display: grid; grid-template-columns: 58px 1fr; gap: 10px;
+    padding: 10px 0; border-bottom: 1px dashed var(--line);
+  }
+  .timeline li:last-child { border-bottom: 0; }
+  .timeline .time { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .timeline .title { font-weight: 600; }
+  .day-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .day-head .badge {
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 700;
+  }
+  .rain .day-head .badge { background: var(--rain-soft); color: var(--rain); }
+  .rain .timeline .time { color: var(--rain); }
+  a { color: var(--accent); }
+  a.map { font-size: 13px; text-decoration: none; }
+  a.map::before { content: "📍 "; }
+  .tag {
+    display: inline-block; font-size: 12px;
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 0 6px; margin-left: 6px; color: var(--muted);
+  }
+  .weather-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .weather-grid .card { margin: 0; text-align: center; }
+  .weather-grid .icon { font-size: 34px; line-height: 1.2; }
+  .weather-grid .temp { font-weight: 700; }
+  .weather-grid .temp .lo { color: var(--rain); }
+  .notice {
+    background: var(--accent-soft); border-radius: 10px;
+    padding: 10px 12px; font-size: 13px; margin-bottom: 14px;
+  }
+  .packing label { display: flex; align-items: center; gap: 10px; padding: 7px 0; cursor: pointer; }
+  .packing input { width: 20px; height: 20px; accent-color: var(--accent); }
+  .packing input:checked + span { color: var(--muted); text-decoration: line-through; }
+  .packing .cat { font-size: 13px; color: var(--muted); margin: 10px 0 2px; font-weight: 700; }
+  .progress { font-size: 13px; color: var(--muted); }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 20px; }
+  @media print {
+    nav.tabs, .no-print { display: none !important; }
+    header.hero { background: none; color: var(--text); border-bottom: 2px solid var(--accent); }
+    section.panel { display: block !important; break-before: page; }
+    section.panel:first-of-type { break-before: auto; }
+    .card { break-inside: avoid; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="eyebrow">旅のしおり</div>
+  <h1 id="trip-title"></h1>
+  <div class="meta" id="trip-meta"></div>
+</header>
+<nav class="tabs" role="tablist" id="tabs"></nav>
+<main id="panels"></main>
+<footer>Made with <a href="https://github.com/yoshimi-I/Travel_itinerary">Travel_itinerary</a></footer>
+
+<script type="application/json" id="itinerary-data">{
+  "trip": {
+    "title": "夏の北海道旅行 2026",
+    "destination": "札幌・小樽",
+    "startDate": "2026-08-10",
+    "endDate": "2026-08-12",
+    "summary": "海鮮とスイーツを食べつくす 2 泊 3 日",
+    "meeting": {
+      "date": "2026-08-10",
+      "time": "07:30",
+      "place": "羽田空港 第2ターミナル 出発ロビー",
+      "mapQuery": "羽田空港 第2ターミナル",
+      "note": "保安検査が混むので遅れないように"
+    }
+  },
+  "members": [
+    {
+      "name": "たろう",
+      "role": "幹事"
+    },
+    {
+      "name": "はなこ",
+      "role": "運転"
+    },
+    {
+      "name": "じろう",
+      "role": "運転"
+    },
+    {
+      "name": "さくら",
+      "role": "会計"
+    }
+  ],
+  "transport": [
+    {
+      "date": "2026-08-10",
+      "type": "飛行機",
+      "from": "羽田",
+      "to": "新千歳",
+      "depart": "08:30",
+      "arrive": "10:05",
+      "detail": "サンプル航空 101 便"
+    },
+    {
+      "date": "2026-08-10",
+      "type": "レンタカー",
+      "from": "新千歳空港",
+      "to": "新千歳空港",
+      "detail": "8/12 15:00 返却"
+    },
+    {
+      "date": "2026-08-12",
+      "type": "飛行機",
+      "from": "新千歳",
+      "to": "羽田",
+      "depart": "17:00",
+      "arrive": "18:40",
+      "detail": "サンプル航空 120 便"
+    }
+  ],
+  "stays": [
+    {
+      "name": "サンプルホテル札幌",
+      "area": "札幌駅周辺",
+      "checkIn": "2026-08-10",
+      "checkOut": "2026-08-11",
+      "mapQuery": "札幌駅",
+      "note": "駐車場あり（1 泊 1,000 円）"
+    },
+    {
+      "name": "サンプル旅館おたる",
+      "area": "小樽",
+      "checkIn": "2026-08-11",
+      "checkOut": "2026-08-12",
+      "mapQuery": "小樽駅",
+      "note": "夕食付き"
+    }
+  ],
+  "budget": {
+    "perPerson": 80000,
+    "breakdown": [
+      {
+        "label": "飛行機",
+        "amount": 40000
+      },
+      {
+        "label": "宿泊",
+        "amount": 25000
+      },
+      {
+        "label": "レンタカー・ガソリン",
+        "amount": 5000
+      },
+      {
+        "label": "食事・観光",
+        "amount": 10000
+      }
+    ],
+    "note": "現地の支払いは会計のさくらがまとめて、あとで精算"
+  },
+  "days": [
+    {
+      "date": "2026-08-10",
+      "title": "札幌へ",
+      "items": [
+        {
+          "time": "07:30",
+          "title": "羽田空港に集合",
+          "place": "第2ターミナル 出発ロビー",
+          "mapQuery": "羽田空港 第2ターミナル",
+          "category": "移動"
+        },
+        {
+          "time": "08:30",
+          "title": "羽田空港を出発",
+          "category": "移動"
+        },
+        {
+          "time": "10:05",
+          "title": "新千歳空港に到着・レンタカーを借りる",
+          "mapQuery": "新千歳空港",
+          "category": "移動"
+        },
+        {
+          "time": "12:00",
+          "title": "二条市場で海鮮丼",
+          "place": "札幌市中央区",
+          "mapQuery": "二条市場 札幌",
+          "category": "ごはん"
+        },
+        {
+          "time": "14:00",
+          "title": "大通公園・さっぽろテレビ塔",
+          "mapQuery": "さっぽろテレビ塔",
+          "category": "観光"
+        },
+        {
+          "time": "16:00",
+          "title": "ホテルにチェックイン",
+          "mapQuery": "札幌駅",
+          "category": "宿泊"
+        },
+        {
+          "time": "18:30",
+          "title": "すすきのでジンギスカン",
+          "mapQuery": "すすきの ジンギスカン",
+          "category": "ごはん"
+        }
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "title": "札幌観光から小樽へ",
+      "items": [
+        {
+          "time": "09:30",
+          "title": "白い恋人パーク",
+          "mapQuery": "白い恋人パーク",
+          "category": "観光",
+          "note": "お菓子作り体験は要予約"
+        },
+        {
+          "time": "12:00",
+          "title": "スープカレー",
+          "mapQuery": "札幌 スープカレー",
+          "category": "ごはん"
+        },
+        {
+          "time": "14:00",
+          "title": "小樽へ移動（車で約 1 時間）",
+          "category": "移動"
+        },
+        {
+          "time": "15:00",
+          "title": "小樽運河をさんぽ",
+          "mapQuery": "小樽運河",
+          "category": "観光"
+        },
+        {
+          "time": "16:30",
+          "title": "旅館にチェックイン",
+          "mapQuery": "小樽駅",
+          "category": "宿泊"
+        }
+      ]
+    },
+    {
+      "date": "2026-08-12",
+      "title": "小樽から帰る",
+      "items": [
+        {
+          "time": "09:30",
+          "title": "堺町通りでおみやげ・スイーツ",
+          "mapQuery": "小樽 堺町通り",
+          "category": "おみやげ"
+        },
+        {
+          "time": "12:00",
+          "title": "小樽でお寿司",
+          "mapQuery": "小樽 寿司屋通り",
+          "category": "ごはん"
+        },
+        {
+          "time": "13:30",
+          "title": "新千歳空港へ移動（車で約 1 時間 15 分）",
+          "category": "移動"
+        },
+        {
+          "time": "15:00",
+          "title": "レンタカーを返却",
+          "category": "移動"
+        },
+        {
+          "time": "17:00",
+          "title": "新千歳空港を出発",
+          "category": "移動"
+        }
+      ]
+    }
+  ],
+  "spots": [
+    {
+      "name": "二条市場",
+      "category": "ごはん",
+      "day": "1日目",
+      "description": "朝から営業している市場。海鮮丼のお店が多い",
+      "mapQuery": "二条市場 札幌"
+    },
+    {
+      "name": "白い恋人パーク",
+      "category": "観光",
+      "day": "2日目",
+      "description": "お菓子工場の見学と、お菓子作り体験ができる",
+      "mapQuery": "白い恋人パーク"
+    },
+    {
+      "name": "小樽運河",
+      "category": "観光",
+      "day": "2日目",
+      "description": "夕方からガス灯がともる。クルーズもある",
+      "mapQuery": "小樽運河"
+    },
+    {
+      "name": "堺町通り",
+      "category": "おみやげ",
+      "day": "3日目",
+      "description": "ガラス細工やスイーツのお店が並ぶ通り",
+      "mapQuery": "小樽 堺町通り"
+    }
+  ],
+  "weather": {
+    "source": "climate",
+    "note": "8 月の札幌は東京より涼しく、朝晩は 20℃ を下回ることも。薄手の上着があると安心です。",
+    "links": [
+      {
+        "label": "tenki.jp（札幌の天気）",
+        "url": "https://tenki.jp/forecast/1/2/1400/1100/"
+      },
+      {
+        "label": "気象庁 天気予報",
+        "url": "https://www.jma.go.jp/bosai/forecast/"
+      }
+    ],
+    "days": [
+      {
+        "date": "2026-08-10",
+        "icon": "🌤",
+        "summary": "晴れ時々くもり（平年）",
+        "high": 26,
+        "low": 19,
+        "rainChance": 30,
+        "clothing": "半袖＋薄手の上着"
+      },
+      {
+        "date": "2026-08-11",
+        "icon": "🌤",
+        "summary": "晴れ時々くもり（平年）",
+        "high": 26,
+        "low": 19,
+        "rainChance": 30,
+        "clothing": "半袖＋薄手の上着"
+      },
+      {
+        "date": "2026-08-12",
+        "icon": "🌤",
+        "summary": "晴れ時々くもり（平年）",
+        "high": 25,
+        "low": 18,
+        "rainChance": 30,
+        "clothing": "半袖＋薄手の上着"
+      }
+    ]
+  },
+  "rainPlan": [
+    {
+      "date": "2026-08-11",
+      "title": "雨の日は屋内で",
+      "items": [
+        {
+          "time": "09:30",
+          "title": "白い恋人パーク（屋内中心なので予定どおり）",
+          "mapQuery": "白い恋人パーク",
+          "category": "観光"
+        },
+        {
+          "time": "12:00",
+          "title": "スープカレー",
+          "mapQuery": "札幌 スープカレー",
+          "category": "ごはん"
+        },
+        {
+          "time": "14:00",
+          "title": "小樽へ移動",
+          "category": "移動"
+        },
+        {
+          "time": "15:00",
+          "title": "小樽運河の代わりに、ガラス工房で体験",
+          "mapQuery": "小樽 ガラス工房 体験",
+          "category": "観光",
+          "note": "要予約・空きを確認"
+        }
+      ]
+    }
+  ],
+  "packing": {
+    "shared": [
+      {
+        "item": "モバイルバッテリー",
+        "category": "電子機器",
+        "assignee": "たろう"
+      },
+      {
+        "item": "車のスマホホルダー",
+        "category": "電子機器",
+        "assignee": "はなこ"
+      },
+      {
+        "item": "折りたたみ傘（予備）",
+        "category": "その他",
+        "assignee": "さくら"
+      }
+    ],
+    "personal": [
+      {
+        "item": "身分証明書",
+        "category": "貴重品"
+      },
+      {
+        "item": "財布・クレジットカード",
+        "category": "貴重品"
+      },
+      {
+        "item": "運転免許証",
+        "category": "貴重品",
+        "note": "運転する人"
+      },
+      {
+        "item": "スマホ・充電器",
+        "category": "電子機器"
+      },
+      {
+        "item": "着替え（2 泊分）",
+        "category": "衣類"
+      },
+      {
+        "item": "薄手の上着",
+        "category": "衣類"
+      },
+      {
+        "item": "歯ブラシ・洗面用具",
+        "category": "日用品"
+      },
+      {
+        "item": "常備薬",
+        "category": "日用品"
+      }
+    ]
+  },
+  "notes": {
+    "emergency": [
+      {
+        "label": "1 泊目の宿",
+        "value": "サンプルホテル札幌（電話番号は予約確認メールを参照）"
+      },
+      {
+        "label": "2 泊目の宿",
+        "value": "サンプル旅館おたる（電話番号は予約確認メールを参照）"
+      },
+      {
+        "label": "救急・消防",
+        "value": "119"
+      }
+    ],
+    "items": [
+      "これはサンプルです。お店・宿・便名は架空のものを含みます",
+      "白い恋人パークのお菓子作り体験は、前日までに予約する",
+      "レンタカーは返却前にガソリンを満タンにする"
+    ]
+  }
+}</script>
+<script>
+(function () {
+  "use strict";
+
+  var data = JSON.parse(document.getElementById("itinerary-data").textContent);
+  var WEEK = ["日", "月", "火", "水", "木", "金", "土"];
+
+  // ---- helpers ----------------------------------------------------------
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        if (attrs[k] == null) return;
+        if (k === "text") node.textContent = attrs[k];
+        else if (k === "class") node.className = attrs[k];
+        else node.setAttribute(k, attrs[k]);
+      });
+    }
+    (children || []).forEach(function (c) {
+      if (c == null || c === false) return;
+      node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return node;
+  }
+  function has(v) {
+    if (v == null) return false;
+    if (Array.isArray(v)) return v.length > 0;
+    if (typeof v === "object") return Object.keys(v).some(function (k) { return has(v[k]); });
+    return String(v).trim() !== "";
+  }
+  function parseDate(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || "");
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+  function fmtDate(s) {
+    var d = parseDate(s);
+    if (!d) return s || "";
+    return (d.getMonth() + 1) + "/" + d.getDate() + "（" + WEEK[d.getDay()] + "）";
+  }
+  function safeUrl(u) {
+    return /^https?:\/\//i.test(u || "") ? u : null;
+  }
+  function mapLink(query, label) {
+    if (!has(query)) return null;
+    return el("a", {
+      class: "map", target: "_blank", rel: "noopener",
+      href: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query),
+      text: label || query
+    });
+  }
+  function card(title, children) {
+    return el("div", { class: "card" }, [title ? el("h3", { text: title }) : null].concat(children));
+  }
+  function kv(pairs) {
+    var dl = el("dl", { class: "kv" });
+    pairs.forEach(function (p) {
+      if (!has(p[1]) && !(p[1] instanceof Node)) return;
+      dl.appendChild(el("dt", { text: p[0] }));
+      dl.appendChild(el("dd", null, [p[1] instanceof Node ? p[1] : String(p[1])]));
+    });
+    return dl;
+  }
+  function timeline(items) {
+    return el("ul", { class: "timeline" }, (items || []).map(function (it) {
+      return el("li", null, [
+        el("div", { class: "time", text: it.time || "" }),
+        el("div", null, [
+          el("div", { class: "title" }, [it.title || "", has(it.category) ? el("span", { class: "tag", text: it.category }) : null]),
+          has(it.place) ? el("div", { class: "muted", text: it.place }) : null,
+          has(it.note) ? el("div", { text: it.note }) : null,
+          mapLink(it.mapQuery, has(it.mapQuery) ? "地図を開く" : null)
+        ])
+      ]);
+    }));
+  }
+  function dayCards(days, extraClass) {
+    return days.map(function (day, i) {
+      return el("div", { class: "card" + (extraClass ? " " + extraClass : "") }, [
+        el("div", { class: "day-head" }, [
+          el("span", { class: "badge", text: day.label || ((i + 1) + "日目") }),
+          el("strong", { text: fmtDate(day.date) }),
+          has(day.title) ? el("span", { text: day.title }) : null
+        ]),
+        has(day.note) ? el("div", { class: "muted", text: day.note }) : null,
+        timeline(day.items)
+      ]);
+    });
+  }
+
+  // ---- panels -----------------------------------------------------------
+  var trip = data.trip || {};
+  var panels = [];
+
+  // 概要
+  (function () {
+    var c = [];
+    c.push(card("旅の概要", [kv([
+      ["行き先", trip.destination],
+      ["日程", fmtDate(trip.startDate) + " 〜 " + fmtDate(trip.endDate)],
+      ["ひとこと", trip.summary]
+    ])]));
+    if (has(trip.meeting)) {
+      c.push(card("集合", [kv([
+        ["日時", [fmtDate(trip.meeting.date), trip.meeting.time].filter(has).join(" ")],
+        ["場所", trip.meeting.place],
+        ["", mapLink(trip.meeting.mapQuery, has(trip.meeting.mapQuery) ? "地図を開く" : null)],
+        ["メモ", trip.meeting.note]
+      ])]));
+    }
+    if (has(data.members)) {
+      c.push(card("メンバー（" + data.members.length + "人）", [el("ul", { class: "plain" }, data.members.map(function (m) {
+        return el("li", null, [m.name || "", has(m.role) ? el("span", { class: "tag", text: m.role }) : null,
+          has(m.note) ? el("div", { class: "muted", text: m.note }) : null]);
+      }))]));
+    }
+    if (has(data.transport)) {
+      c.push(card("移動", [el("ul", { class: "plain" }, data.transport.map(function (t) {
+        var route = [t.from, t.to].filter(has).join(" → ");
+        var time = [t.depart, t.arrive].filter(has).join(" → ");
+        return el("li", null, [
+          el("div", null, [el("strong", { text: [fmtDate(t.date), t.type].filter(has).join(" ") }), " ", route]),
+          has(time) ? el("div", { class: "muted", text: time }) : null,
+          has(t.detail) ? el("div", { text: t.detail }) : null
+        ]);
+      }))]));
+    }
+    if (has(data.stays)) {
+      c.push(card("宿泊", [el("ul", { class: "plain" }, data.stays.map(function (s) {
+        return el("li", null, [
+          el("div", null, [el("strong", { text: s.name || s.area || "" }), has(s.area) && has(s.name) ? el("span", { class: "tag", text: s.area }) : null]),
+          el("div", { class: "muted", text: [fmtDate(s.checkIn), fmtDate(s.checkOut)].filter(has).join(" 〜 ") }),
+          has(s.note) ? el("div", { text: s.note }) : null,
+          mapLink(s.mapQuery, has(s.mapQuery) ? "地図を開く" : null)
+        ]);
+      }))]));
+    }
+    var b = data.budget;
+    if (has(b)) {
+      var rows = [];
+      if (has(b.perPerson)) rows.push(["1人あたり", Number(b.perPerson).toLocaleString("ja-JP") + " " + (b.currency || "円")]);
+      (b.breakdown || []).forEach(function (x) {
+        rows.push([x.label, has(x.amount) ? Number(x.amount).toLocaleString("ja-JP") + " " + (b.currency || "円") : ""]);
+      });
+      rows.push(["メモ", b.note]);
+      c.push(card("予算", [kv(rows)]));
+    }
+    panels.push({ id: "overview", label: "🗺 概要", children: c });
+  })();
+
+  // 日程
+  if (has(data.days)) {
+    panels.push({ id: "schedule", label: "📅 日程", children: dayCards(data.days) });
+  }
+
+  // プラン
+  if (has(data.spots)) {
+    panels.push({ id: "plan", label: "📍 プラン", children: data.spots.map(function (s) {
+      var url = safeUrl(s.url);
+      return card(null, [
+        el("h3", null, [s.name || "", has(s.category) ? el("span", { class: "tag", text: s.category }) : null]),
+        has(s.day) ? el("div", { class: "muted", text: s.day }) : null,
+        has(s.description) ? el("div", { text: s.description }) : null,
+        el("div", null, [
+          mapLink(s.mapQuery, has(s.mapQuery) ? "地図を開く" : null),
+          url ? " " : null,
+          url ? el("a", { href: url, target: "_blank", rel: "noopener", text: "公式サイト" }) : null
+        ])
+      ]);
+    }) });
+  }
+
+  // 天気
+  var w = data.weather;
+  if (has(w) && has(w.days)) {
+    var wc = [];
+    var srcText = w.source === "forecast"
+      ? "天気予報" + (has(w.checkedAt) ? "（" + w.checkedAt + " 時点）" : "") + "の内容です。出発前に最新の予報を確認してください。"
+      : "その時期の平年の気候をもとにした目安です。出発前に最新の予報を確認してください。";
+    wc.push(el("div", { class: "notice", text: srcText }));
+    wc.push(el("div", { class: "weather-grid" }, w.days.map(function (d) {
+      return el("div", { class: "card" }, [
+        el("div", null, [el("strong", { text: fmtDate(d.date) })]),
+        el("div", { class: "icon", text: d.icon || "🌤" }),
+        el("div", { text: d.summary || "" }),
+        el("div", { class: "temp" }, [
+          has(d.high) ? d.high + "℃" : "", has(d.high) && has(d.low) ? " / " : "",
+          has(d.low) ? el("span", { class: "lo", text: d.low + "℃" }) : null
+        ]),
+        has(d.rainChance) ? el("div", { class: "muted", text: "☔ " + d.rainChance + "%" }) : null,
+        has(d.clothing) ? el("div", { class: "muted", text: d.clothing }) : null
+      ]);
+    })));
+    if (has(w.note)) wc.push(card("服装・天気のメモ", [el("div", { text: w.note })]));
+    var links = (w.links || []).filter(function (l) { return safeUrl(l.url); });
+    if (links.length) {
+      wc.push(card("最新の天気予報", [el("ul", { class: "plain" }, links.map(function (l) {
+        return el("li", null, [el("a", { href: l.url, target: "_blank", rel: "noopener", text: l.label || l.url })]);
+      }))]));
+    }
+    panels.push({ id: "weather", label: "☀️ 天気", children: wc });
+  }
+
+  // 雨天プラン
+  if (has(data.rainPlan)) {
+    panels.push({ id: "rain", label: "☔ 雨天プラン", children:
+      [el("div", { class: "notice", text: "雨の日はこちらのプランに切り替えます。" })].concat(dayCards(data.rainPlan, "rain")) });
+  }
+
+  // 持ち物
+  var p = data.packing;
+  if (has(p)) {
+    var storeKey = "shiori-packing:" + (trip.title || "") + ":" + (trip.startDate || "");
+    var state = {};
+    try { state = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch (e) { state = {}; }
+    var boxes = [];
+    var progress = el("div", { class: "progress no-print" });
+    var updateProgress = function () {
+      var done = boxes.filter(function (b) { return b.checked; }).length;
+      progress.textContent = "チェック済み " + done + " / " + boxes.length;
+    };
+    var group = function (title, prefix, list, withAssignee) {
+      if (!has(list)) return null;
+      var cats = [];
+      var byCat = {};
+      list.forEach(function (it) {
+        var c = it.category || "その他";
+        if (!byCat[c]) { byCat[c] = []; cats.push(c); }
+        byCat[c].push(it);
+      });
+      var nodes = [];
+      cats.forEach(function (c) {
+        nodes.push(el("div", { class: "cat", text: c }));
+        byCat[c].forEach(function (it, i) {
+          var key = prefix + ":" + c + ":" + (it.item || i);
+          var box = el("input", { type: "checkbox" });
+          box.checked = !!state[key];
+          box.addEventListener("change", function () {
+            state[key] = box.checked;
+            try { localStorage.setItem(storeKey, JSON.stringify(state)); } catch (e) { /* storage unavailable */ }
+            updateProgress();
+          });
+          boxes.push(box);
+          nodes.push(el("label", null, [box, el("span", null, [it.item || "",
+            withAssignee && has(it.assignee) ? el("span", { class: "tag", text: it.assignee }) : null,
+            has(it.note) ? el("span", { class: "muted", text: "　" + it.note }) : null])]));
+        });
+      });
+      return card(title, [el("div", { class: "packing" }, nodes)]);
+    };
+    var pc = [progress, group("みんなで用意するもの", "shared", p.shared, true), group("各自で用意するもの", "personal", p.personal, false)];
+    updateProgress();
+    panels.push({ id: "packing", label: "🎒 持ち物", children: pc });
+  }
+
+  // メモ
+  var n = data.notes;
+  if (has(n)) {
+    var nc = [];
+    if (has(n.emergency)) {
+      nc.push(card("緊急連絡先", [kv(n.emergency.map(function (e) { return [e.label, e.value]; }))]));
+    }
+    if (has(n.items)) {
+      nc.push(card("注意事項・メモ", [el("ul", { class: "plain" }, n.items.map(function (t) { return el("li", { text: t }); }))]));
+    }
+    panels.push({ id: "notes", label: "📝 メモ", children: nc });
+  }
+
+  // ---- render -----------------------------------------------------------
+  document.title = (trip.title || "旅のしおり") + " | 旅のしおり";
+  document.getElementById("trip-title").textContent = trip.title || "旅のしおり";
+  document.getElementById("trip-meta").textContent =
+    [trip.destination, fmtDate(trip.startDate) + " 〜 " + fmtDate(trip.endDate)].filter(has).join("　｜　");
+
+  var tabs = document.getElementById("tabs");
+  var main = document.getElementById("panels");
+  var buttons = {};
+  var sections = {};
+
+  panels.forEach(function (pn) {
+    var btn = el("button", { role: "tab", "aria-controls": "panel-" + pn.id, id: "tab-" + pn.id, text: pn.label });
+    btn.addEventListener("click", function () { select(pn.id, true); });
+    tabs.appendChild(btn);
+    buttons[pn.id] = btn;
+    var sec = el("section", { class: "panel", role: "tabpanel", id: "panel-" + pn.id, "aria-labelledby": "tab-" + pn.id },
+      [el("h2", { text: pn.label })].concat(pn.children));
+    main.appendChild(sec);
+    sections[pn.id] = sec;
+  });
+
+  function select(id, push) {
+    if (!sections[id]) id = panels[0].id;
+    Object.keys(sections).forEach(function (k) {
+      sections[k].classList.toggle("active", k === id);
+      buttons[k].setAttribute("aria-selected", k === id ? "true" : "false");
+    });
+    if (push && location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+    buttons[id].scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+  window.addEventListener("hashchange", function () { select(location.hash.slice(1), false); });
+  select(location.hash.slice(1), false);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+{
+  "trip": {
+    "title": "夏の北海道旅行 2026",
+    "destination": "札幌・小樽",
+    "startDate": "2026-08-10",
+    "endDate": "2026-08-12",
+    "summary": "海鮮とスイーツを食べつくす 2 泊 3 日",
+    "meeting": {
+      "date": "2026-08-10",
+      "time": "07:30",
+      "place": "羽田空港 第2ターミナル 出発ロビー",
+      "mapQuery": "羽田空港 第2ターミナル",
+      "note": "保安検査が混むので遅れないように"
+    }
+  },
+  "members": [
+    { "name": "たろう", "role": "幹事" },
+    { "name": "はなこ", "role": "運転" },
+    { "name": "じろう", "role": "運転" },
+    { "name": "さくら", "role": "会計" }
+  ],
+  "transport": [
+    { "date": "2026-08-10", "type": "飛行機", "from": "羽田", "to": "新千歳", "depart": "08:30", "arrive": "10:05", "detail": "サンプル航空 101 便" },
+    { "date": "2026-08-10", "type": "レンタカー", "from": "新千歳空港", "to": "新千歳空港", "detail": "8/12 15:00 返却" },
+    { "date": "2026-08-12", "type": "飛行機", "from": "新千歳", "to": "羽田", "depart": "17:00", "arrive": "18:40", "detail": "サンプル航空 120 便" }
+  ],
+  "stays": [
+    { "name": "サンプルホテル札幌", "area": "札幌駅周辺", "checkIn": "2026-08-10", "checkOut": "2026-08-11", "mapQuery": "札幌駅", "note": "駐車場あり（1 泊 1,000 円）" },
+    { "name": "サンプル旅館おたる", "area": "小樽", "checkIn": "2026-08-11", "checkOut": "2026-08-12", "mapQuery": "小樽駅", "note": "夕食付き" }
+  ],
+  "budget": {
+    "perPerson": 80000,
+    "breakdown": [
+      { "label": "飛行機", "amount": 40000 },
+      { "label": "宿泊", "amount": 25000 },
+      { "label": "レンタカー・ガソリン", "amount": 5000 },
+      { "label": "食事・観光", "amount": 10000 }
+    ],
+    "note": "現地の支払いは会計のさくらがまとめて、あとで精算"
+  },
+  "days": [
+    {
+      "date": "2026-08-10",
+      "title": "札幌へ",
+      "items": [
+        { "time": "07:30", "title": "羽田空港に集合", "place": "第2ターミナル 出発ロビー", "mapQuery": "羽田空港 第2ターミナル", "category": "移動" },
+        { "time": "08:30", "title": "羽田空港を出発", "category": "移動" },
+        { "time": "10:05", "title": "新千歳空港に到着・レンタカーを借りる", "mapQuery": "新千歳空港", "category": "移動" },
+        { "time": "12:00", "title": "二条市場で海鮮丼", "place": "札幌市中央区", "mapQuery": "二条市場 札幌", "category": "ごはん" },
+        { "time": "14:00", "title": "大通公園・さっぽろテレビ塔", "mapQuery": "さっぽろテレビ塔", "category": "観光" },
+        { "time": "16:00", "title": "ホテルにチェックイン", "mapQuery": "札幌駅", "category": "宿泊" },
+        { "time": "18:30", "title": "すすきのでジンギスカン", "mapQuery": "すすきの ジンギスカン", "category": "ごはん" }
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "title": "札幌観光から小樽へ",
+      "items": [
+        { "time": "09:30", "title": "白い恋人パーク", "mapQuery": "白い恋人パーク", "category": "観光", "note": "お菓子作り体験は要予約" },
+        { "time": "12:00", "title": "スープカレー", "mapQuery": "札幌 スープカレー", "category": "ごはん" },
+        { "time": "14:00", "title": "小樽へ移動（車で約 1 時間）", "category": "移動" },
+        { "time": "15:00", "title": "小樽運河をさんぽ", "mapQuery": "小樽運河", "category": "観光" },
+        { "time": "16:30", "title": "旅館にチェックイン", "mapQuery": "小樽駅", "category": "宿泊" }
+      ]
+    },
+    {
+      "date": "2026-08-12",
+      "title": "小樽から帰る",
+      "items": [
+        { "time": "09:30", "title": "堺町通りでおみやげ・スイーツ", "mapQuery": "小樽 堺町通り", "category": "おみやげ" },
+        { "time": "12:00", "title": "小樽でお寿司", "mapQuery": "小樽 寿司屋通り", "category": "ごはん" },
+        { "time": "13:30", "title": "新千歳空港へ移動（車で約 1 時間 15 分）", "category": "移動" },
+        { "time": "15:00", "title": "レンタカーを返却", "category": "移動" },
+        { "time": "17:00", "title": "新千歳空港を出発", "category": "移動" }
+      ]
+    }
+  ],
+  "spots": [
+    { "name": "二条市場", "category": "ごはん", "day": "1日目", "description": "朝から営業している市場。海鮮丼のお店が多い", "mapQuery": "二条市場 札幌" },
+    { "name": "白い恋人パーク", "category": "観光", "day": "2日目", "description": "お菓子工場の見学と、お菓子作り体験ができる", "mapQuery": "白い恋人パーク" },
+    { "name": "小樽運河", "category": "観光", "day": "2日目", "description": "夕方からガス灯がともる。クルーズもある", "mapQuery": "小樽運河" },
+    { "name": "堺町通り", "category": "おみやげ", "day": "3日目", "description": "ガラス細工やスイーツのお店が並ぶ通り", "mapQuery": "小樽 堺町通り" }
+  ],
+  "weather": {
+    "source": "climate",
+    "note": "8 月の札幌は東京より涼しく、朝晩は 20℃ を下回ることも。薄手の上着があると安心です。",
+    "links": [
+      { "label": "tenki.jp（札幌の天気）", "url": "https://tenki.jp/forecast/1/2/1400/1100/" },
+      { "label": "気象庁 天気予報", "url": "https://www.jma.go.jp/bosai/forecast/" }
+    ],
+    "days": [
+      { "date": "2026-08-10", "icon": "🌤", "summary": "晴れ時々くもり（平年）", "high": 26, "low": 19, "rainChance": 30, "clothing": "半袖＋薄手の上着" },
+      { "date": "2026-08-11", "icon": "🌤", "summary": "晴れ時々くもり（平年）", "high": 26, "low": 19, "rainChance": 30, "clothing": "半袖＋薄手の上着" },
+      { "date": "2026-08-12", "icon": "🌤", "summary": "晴れ時々くもり（平年）", "high": 25, "low": 18, "rainChance": 30, "clothing": "半袖＋薄手の上着" }
+    ]
+  },
+  "rainPlan": [
+    {
+      "date": "2026-08-11",
+      "title": "雨の日は屋内で",
+      "items": [
+        { "time": "09:30", "title": "白い恋人パーク（屋内中心なので予定どおり）", "mapQuery": "白い恋人パーク", "category": "観光" },
+        { "time": "12:00", "title": "スープカレー", "mapQuery": "札幌 スープカレー", "category": "ごはん" },
+        { "time": "14:00", "title": "小樽へ移動", "category": "移動" },
+        { "time": "15:00", "title": "小樽運河の代わりに、ガラス工房で体験", "mapQuery": "小樽 ガラス工房 体験", "category": "観光", "note": "要予約・空きを確認" }
+      ]
+    }
+  ],
+  "packing": {
+    "shared": [
+      { "item": "モバイルバッテリー", "category": "電子機器", "assignee": "たろう" },
+      { "item": "車のスマホホルダー", "category": "電子機器", "assignee": "はなこ" },
+      { "item": "折りたたみ傘（予備）", "category": "その他", "assignee": "さくら" }
+    ],
+    "personal": [
+      { "item": "身分証明書", "category": "貴重品" },
+      { "item": "財布・クレジットカード", "category": "貴重品" },
+      { "item": "運転免許証", "category": "貴重品", "note": "運転する人" },
+      { "item": "スマホ・充電器", "category": "電子機器" },
+      { "item": "着替え（2 泊分）", "category": "衣類" },
+      { "item": "薄手の上着", "category": "衣類" },
+      { "item": "歯ブラシ・洗面用具", "category": "日用品" },
+      { "item": "常備薬", "category": "日用品" }
+    ]
+  },
+  "notes": {
+    "emergency": [
+      { "label": "1 泊目の宿", "value": "サンプルホテル札幌（電話番号は予約確認メールを参照）" },
+      { "label": "2 泊目の宿", "value": "サンプル旅館おたる（電話番号は予約確認メールを参照）" },
+      { "label": "救急・消防", "value": "119" }
+    ],
+    "items": [
+      "これはサンプルです。お店・宿・便名は架空のものを含みます",
+      "白い恋人パークのお菓子作り体験は、前日までに予約する",
+      "レンタカーは返却前にガソリンを満タンにする"
+    ]
+  }
+}

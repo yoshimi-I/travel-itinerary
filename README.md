@@ -9,7 +9,9 @@
 AI が行き先・日程・メンバー・プランなどを順番に質問し、その回答をもとに、タブで切り替えられる 1 枚の HTML のしおりを生成します。
 
 > [!NOTE]
-> 現在開発中です。以下は目指している仕様で、まだ実装されていない機能も含みます。
+> 現在開発中です。Claude Code と Codex に対応済みで、Kiro は今後対応予定です。
+
+👉 サンプル: [`examples/sample-trip.html`](examples/sample-trip.html)（ダウンロードしてブラウザで開くと確認できます）
 
 ---
 
@@ -19,19 +21,21 @@ AI が行き先・日程・メンバー・プランなどを順番に質問し�
 - **タブ切り替えの HTML** — 日程・プラン・天気・持ち物などをタブで整理し、スマホでも見やすく表示します
 - **メンバーに配布できる** — 外部ファイルに依存しない 1 ファイルの HTML なので、送るだけで開けます
 - **雨天時のプランにも対応（オプション）** — 希望すれば雨の日の代わりのプランも質問し、別タブにまとめます
-- **3 つのエージェントに対応** — Claude Code / Codex / Kiro の、使い慣れた環境で使えます
+- **複数のエージェントに対応** — Claude Code / Codex に対応済み（Kiro は今後対応）
 
 ## 🤖 対応エージェント
 
-| エージェント | 仕組み | 配置先（予定） |
-|--------------|--------|----------------|
-| Claude Code | Skill / スラッシュコマンド | `.claude/skills/travel-itinerary/` |
-| Codex | `AGENTS.md` | `AGENTS.md` |
-| Kiro | Steering | `.kiro/steering/` |
+| エージェント | 状態 | 配置先 | 呼び出し方 |
+|--------------|------|--------|------------|
+| Claude Code | ✅ 対応 | `.claude/skills/travel-itinerary/` | `/travel-itinerary` |
+| Codex | ✅ 対応 | `.agents/skills/travel-itinerary/` | `$travel-itinerary` |
+| Kiro | 🚧 今後対応 | `.kiro/steering/` | — |
 
-質問の流れやしおりのテンプレートは共通化し、各エージェント向けのファイルからはそれを参照する形にする予定です。
+skill の本体（質問の流れ・JSON の仕様・HTML テンプレート・ビルドスクリプト）は `.agents/skills/travel-itinerary/` にまとめてあります。Claude Code 用の skill は、この本体を読んで従う薄い入口です。
 
-## 🚀 使い方（予定）
+どちらも「旅のしおりを作りたい」と話しかければ、内容から自動で skill が選ばれます。
+
+## 🚀 使い方
 
 1. このリポジトリを clone します
 
@@ -44,13 +48,16 @@ AI が行き先・日程・メンバー・プランなどを順番に質問し�
 
    | エージェント | 依頼の仕方 |
    |--------------|------------|
-   | Claude Code | `/travel-itinerary` |
-   | Codex | 「旅のしおりを作りたい」と話しかける |
-   | Kiro | 「旅のしおりを作りたい」と話しかける |
+   | Claude Code | `/travel-itinerary`、または「旅のしおりを作りたい」 |
+   | Codex | `$travel-itinerary`、または「旅のしおりを作りたい」 |
 
-3. AI の質問に答えていきます
-4. `output/` に HTML のしおりが生成されるので、ブラウザで開いて確認します
-5. 内容がよければ、メンバーに配ります
+3. AI の質問に答えていきます（基本情報 → 日程・プラン → オプションの順に、まとめて聞かれます）
+4. `output/<旅の名前>/index.html` にしおりが生成されるので、ブラウザで開いて確認します
+5. 直したいところがあれば、AI に伝えると作り直してくれます
+6. 内容がよければ、メンバーに配ります
+
+> [!TIP]
+> HTML のビルドには Python 3（標準ライブラリのみ）を使います。Python がない環境では、AI がテンプレートに直接データを埋め込みます。
 
 ## 💬 ヒアリング項目
 
@@ -111,29 +118,45 @@ AI が行き先・日程・メンバー・プランなどを順番に質問し�
 | GitHub Pages などで公開する | URL で共有したいとき。公開範囲に注意してください |
 | ブラウザで印刷して PDF にする | 紙で配りたいとき |
 
-## 📁 ディレクトリ構成（予定）
+## 🛠 しくみ
+
+```
+質問に答える → AI が itinerary.json を書く → build.py がテンプレートに埋め込む → index.html
+```
+
+デザインとタブは固定のテンプレートで描画し、AI はデータ（JSON）だけを書きます。そのため、どのエージェントで作っても同じ見た目になります。JSON の仕様は [`schema.md`](.agents/skills/travel-itinerary/references/schema.md) を参照してください。
+
+手動でビルドする場合:
+
+```bash
+python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json output/sample/index.html
+```
+
+## 📁 ディレクトリ構成
 
 ```
 Travel_itinerary/
-├── .claude/skills/travel-itinerary/  # Claude Code 用 Skill
-├── .kiro/steering/                   # Kiro 用 Steering
-├── AGENTS.md                         # Codex 用の指示
-├── prompts/                          # 共通の質問フロー
-├── templates/                        # しおりの HTML テンプレート
-├── examples/                         # サンプルのしおり
-└── output/                           # 生成したしおり（git 管理外）
+├── .agents/skills/travel-itinerary/   # skill の本体（Codex はここを直接使う）
+│   ├── SKILL.md                       # 手順全体
+│   ├── references/interview.md        # 質問の進め方
+│   ├── references/schema.md           # しおり JSON の仕様
+│   ├── assets/template.html           # しおりの HTML テンプレート
+│   └── scripts/build.py               # JSON → HTML のビルド
+├── .claude/skills/travel-itinerary/   # Claude Code 用の入口
+├── examples/                          # サンプルのしおり（架空のデータ）
+└── output/                            # 生成したしおり（git 管理外）
 ```
 
 ## 🗺 ロードマップ
 
-- [ ] 共通の質問フローを作る
-- [ ] タブ切り替えの HTML テンプレートを作る
-- [ ] Claude Code 対応
-- [ ] Codex 対応
+- [x] 共通の質問フローを作る
+- [x] タブ切り替えの HTML テンプレートを作る
+- [x] Claude Code 対応
+- [x] Codex 対応
 - [ ] Kiro 対応
-- [ ] 雨天時のプラン
-- [ ] 天気の取得
-- [ ] サンプルのしおりを用意する
+- [x] 雨天時のプラン
+- [x] 天気（予報 / 平年の気候）
+- [x] サンプルのしおりを用意する
 - [ ] 英語対応
 
 ## 🔒 個人情報について
