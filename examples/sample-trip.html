@@ -12,9 +12,9 @@
     --line: #e2e2e2;
     --soft: #f5f5f5;
     --paper: #ffffff;
-    --serif: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", serif;
-    --sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", "YuGothic", Meiryo, sans-serif;
-    --mono: "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", "YuGothic", Meiryo, sans-serif;
+    --serif: var(--sans);
+    --mono: var(--sans);
     --side: 288px;
   }
   * { box-sizing: border-box; }
@@ -27,6 +27,8 @@
     font-size: 15px;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "palt";
   }
   a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
   svg.i {
