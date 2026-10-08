@@ -49,6 +49,17 @@ def validate(data):
             if not isinstance(day.get("items", []), list):
                 errors.append(f"{where}.items は配列にしてください")
 
+    days, rain_plan = data.get("days"), data.get("rainPlan")
+    if isinstance(days, list) and isinstance(rain_plan, list):
+        day_dates = {d.get("date") for d in days if isinstance(d, dict)}
+        for i, plan in enumerate(rain_plan):
+            if not isinstance(plan, dict):
+                continue
+            if not plan.get("date"):
+                errors.append(f"`rainPlan[{i}].date` がありません（どの日の雨天プランかを日付で指定してください）")
+            elif plan["date"] not in day_dates:
+                errors.append(f"`rainPlan[{i}].date`（{plan['date']}）と同じ日付が `days` にありません")
+
     for key, kind in (("members", list), ("transport", list), ("stays", list), ("spots", list),
                       ("weather", dict), ("packing", dict), ("budget", dict), ("notes", dict)):
         if key in data and data[key] is not None and not isinstance(data[key], kind):

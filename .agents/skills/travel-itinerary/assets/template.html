@@ -198,8 +198,26 @@
   .day-body { padding: 6px 18px 14px; }
   .day-note { font-size: 13px; color: var(--sub); padding: 10px 0 2px; }
 
-  .day.rain { border-style: dashed; }
-  .day.rain .day-no b { font-size: 22px; padding: 6px 0; }
+  .day.is-rain { border-style: dashed; }
+  .day-variant[hidden] { display: none; }
+  .day-variant .variant-label { display: none; }
+
+  .switch { display: inline-flex; border: 1px solid var(--ink); justify-self: start; }
+  .switch button {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 0; background: var(--paper); color: var(--ink);
+    font: inherit; font-size: 13px; padding: 5px 12px; cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .switch button + button { border-left: 1px solid var(--ink); }
+  .switch button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .switch button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .day-head .switch { grid-column: 1 / -1; }
+  @media (min-width: 560px) {
+    .day-head { grid-template-columns: auto 1fr auto; }
+    .day-head .switch { grid-column: auto; }
+  }
+  .weather-toggle { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; font-size: 13px; color: var(--sub); }
 
   ol.timeline { list-style: none; margin: 0; padding: 0; }
   ol.timeline li {
@@ -281,6 +299,8 @@
     section.panel { display: block !important; animation: none !important; break-before: page; margin-top: 8px; }
     section.panel:first-of-type { break-before: auto; }
     .card, .day, .spot, .wday { break-inside: avoid; }
+    .day-variant[hidden] { display: block !important; }
+    .day-variant .variant-label { display: block; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #000; color: #000; }
     .check .box { border-color: #000; }
   }
 </style>
@@ -448,25 +468,78 @@
       ]);
     }));
   }
-  function dayBlocks(days, rain) {
-    return days.map(function (day, i) {
-      var no = rain
-        ? el("div", { class: "day-no" }, [el("small", { text: "RAIN" }), el("b", null, [icon("umbrella")])])
-        : el("div", { class: "day-no" }, [el("small", { text: "DAY" }), el("b", { text: pad(i + 1) })]);
-      return el("article", { class: "day" + (rain ? " rain" : "") }, [
-        el("div", { class: "day-head" }, [
-          no,
-          el("div", null, [
-            el("div", { class: "day-date", text: [fmtDate(day.date), day.label].filter(has).join("　") }),
-            el("div", { class: "day-title", text: day.title || (rain ? "雨の日のプラン" : (i + 1) + "日目") })
-          ])
-        ]),
-        el("div", { class: "day-body" }, [
-          has(day.note) ? el("div", { class: "day-note", text: day.note }) : null,
-          timeline(day.items)
-        ])
-      ]);
+  // 晴れ / 雨天 の切り替えボタン。onChange(true) で雨天
+  function weatherSwitch(onChange) {
+    var sunBtn = el("button", { type: "button", "aria-pressed": "true" }, [icon("sun"), "晴れ"]);
+    var rainBtn = el("button", { type: "button", "aria-pressed": "false" }, [icon("umbrella"), "雨天"]);
+    var node = el("div", { class: "switch no-print", role: "group", "aria-label": "晴れ・雨天のプラン切り替え" }, [sunBtn, rainBtn]);
+    // rain: true=雨天 / false=晴れ / null=日によって違う（どちらも選択なし）
+    node.set = function (rain) {
+      sunBtn.setAttribute("aria-pressed", rain === false ? "true" : "false");
+      rainBtn.setAttribute("aria-pressed", rain === true ? "true" : "false");
+    };
+    sunBtn.addEventListener("click", function () { onChange(false); });
+    rainBtn.addEventListener("click", function () { onChange(true); });
+    return node;
+  }
+  function variant(note, items, label) {
+    return el("div", { class: "day-variant" }, [
+      label ? el("div", { class: "variant-label day-note", text: label }) : null,
+      has(note) ? el("div", { class: "day-note", text: note }) : null,
+      timeline(items)
+    ]);
+  }
+  // rainByDate: 日付 → 雨天プラン。ある日だけ 晴れ / 雨天 を切り替えられる
+  function dayBlocks(days, rainByDate) {
+    var setters = [], states = [], all = null;
+    var syncAll = function () {
+      if (!all) return;
+      var rainy = states.filter(Boolean).length;
+      all.set(rainy === 0 ? false : rainy === states.length ? true : null);
+    };
+    var blocks = days.map(function (day, i) {
+      var rain = rainByDate[day.date];
+      var sunTitle = day.title || (i + 1) + "日目";
+      var title = el("div", { class: "day-title", text: sunTitle });
+      var sunny = variant(day.note, day.items);
+      var head = [
+        el("div", { class: "day-no" }, [el("small", { text: "DAY" }), el("b", { text: pad(i + 1) })]),
+        el("div", null, [el("div", { class: "day-date", text: [fmtDate(day.date), day.label].filter(has).join("　") }), title])
+      ];
+      var body = [sunny];
+      var article = el("article", { class: "day" });
+      if (rain) {
+        var rainy = variant(rain.note, rain.items, "雨天時：" + (rain.title || "雨の日のプラン"));
+        rainy.hidden = true;
+        body.push(rainy);
+        var sw, idx = states.length;
+        states.push(false);
+        var set = function (isRain) {
+          states[idx] = isRain;
+          sunny.hidden = isRain;
+          rainy.hidden = !isRain;
+          title.textContent = isRain ? (rain.title || "雨の日のプラン") : sunTitle;
+          article.classList.toggle("is-rain", isRain);
+          sw.set(isRain);
+          syncAll();
+        };
+        sw = weatherSwitch(set);
+        head.push(sw);
+        setters.push(set);
+      }
+      article.appendChild(el("div", { class: "day-head" }, head));
+      article.appendChild(el("div", { class: "day-body" }, body));
+      return article;
     });
+    if (setters.length) {
+      all = weatherSwitch(function (isRain) {
+        setters.forEach(function (f) { f(isRain); });
+      });
+      blocks.unshift(el("div", { class: "weather-toggle no-print" }, [
+        all, el("span", { text: "雨天プランがある日（" + setters.length + "日）をまとめて切り替えます。日ごとにも切り替えられます。" })
+      ]));
+    }
+    return blocks;
   }
 
   // ---- panels -----------------------------------------------------------
@@ -532,7 +605,9 @@
 
   // 日程
   if (has(data.days)) {
-    panels.push({ id: "schedule", label: "日程", icon: "calendar", children: dayBlocks(data.days, false) });
+    var rainByDate = {};
+    (data.rainPlan || []).forEach(function (r) { if (r && r.date) rainByDate[r.date] = r; });
+    panels.push({ id: "schedule", label: "日程", icon: "calendar", children: dayBlocks(data.days, rainByDate) });
   }
 
   // プラン
@@ -579,12 +654,6 @@
     }
     if (side.length) wc.push(el("div", { class: "grid two" }, side));
     panels.push({ id: "weather", label: "天気", icon: "partly", children: wc });
-  }
-
-  // 雨天プラン
-  if (has(data.rainPlan)) {
-    panels.push({ id: "rain", label: "雨天プラン", icon: "umbrella", children:
-      [el("div", { class: "notice" }, [icon("umbrella"), el("span", { text: "雨の日は、こちらのプランに切り替えます。" })])].concat(dayBlocks(data.rainPlan, true)) });
   }
 
   // 持ち物
