@@ -89,6 +89,8 @@
       display: grid;
       grid-template-columns: var(--side) minmax(0, 1fr);
       grid-template-rows: auto 1fr;
+      max-width: 1280px;
+      margin: 0 auto;
     }
     header.hero {
       grid-column: 1; grid-row: 1;
@@ -118,7 +120,7 @@
       border-left: 1px solid var(--line);
       max-width: none;
     }
-    .layout > main > section, .layout > main > footer { max-width: 920px; }
+    .layout > main > section, .layout > main > footer { max-width: 960px; margin-left: auto; margin-right: auto; }
   }
 
   /* ---- panels ---------------------------------------------------------- */
