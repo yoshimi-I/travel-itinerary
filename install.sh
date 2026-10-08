@@ -106,7 +106,7 @@ error() { printf 'エラー: %s\n' "$*" >&2; exit 1; }
 # clone したリポジトリの中から実行された場合は、そのファイルを使う
 local_source() {
   local self="${BASH_SOURCE[0]:-}"
-  [ -n "$self" ] && [ -f "$self" ] || return 1
+  if [ -z "$self" ] || [ ! -f "$self" ]; then return 1; fi
   local dir
   dir="$(cd "$(dirname "$self")" && pwd)"
   [ -f "$dir/.agents/skills/$SKILL/SKILL.md" ] || return 1
@@ -123,7 +123,9 @@ download() {
   tar -xzf "$tmp/src.tar.gz" -C "$tmp"
   local found
   found="$(find "$tmp" -mindepth 4 -maxdepth 4 -type d -path "*/.agents/skills/$SKILL" | head -n 1)"
-  [ -n "$found" ] && [ -f "$found/SKILL.md" ] || error "ダウンロードしたファイルに skill が見つかりません"
+  if [ -z "$found" ] || [ ! -f "$found/SKILL.md" ]; then
+    error "ダウンロードしたファイルに skill が見つかりません"
+  fi
   printf '%s\n' "$found"
 }
 
