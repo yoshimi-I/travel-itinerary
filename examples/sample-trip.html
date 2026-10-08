@@ -414,7 +414,17 @@
       "to": "新千歳",
       "depart": "08:30",
       "arrive": "10:05",
-      "detail": "サンプル航空 101 便"
+      "detail": "サンプル航空 101 便",
+      "links": [
+        {
+          "label": "羽田空港（フライト情報）",
+          "url": "https://tokyo-haneda.com/index.html"
+        },
+        {
+          "label": "新千歳空港（フライト情報）",
+          "url": "https://www.hokkaido-airports.com/ja/new-chitose/"
+        }
+      ]
     },
     {
       "date": "2026-08-10",
@@ -430,7 +440,17 @@
       "to": "羽田",
       "depart": "17:00",
       "arrive": "18:40",
-      "detail": "サンプル航空 120 便"
+      "detail": "サンプル航空 120 便",
+      "links": [
+        {
+          "label": "新千歳空港（フライト情報）",
+          "url": "https://www.hokkaido-airports.com/ja/new-chitose/"
+        },
+        {
+          "label": "羽田空港（フライト情報）",
+          "url": "https://tokyo-haneda.com/index.html"
+        }
+      ]
     }
   ],
   "stays": [
@@ -869,6 +889,12 @@
   function link(href, label, iconName) {
     return el("a", { class: "link", href: href, target: "_blank", rel: "noopener" }, [label, icon(iconName || "external")]);
   }
+  // links: [{ label, url }]。http(s) 以外は無視する
+  function extLinks(links) {
+    var list = (links || []).filter(function (l) { return l && safeUrl(l.url); });
+    if (!list.length) return null;
+    return el("div", null, list.map(function (l) { return link(l.url, l.label || "リンク"); }));
+  }
   function mapLink(query) {
     if (!has(query)) return null;
     return link("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query), "地図", "pin");
@@ -1033,7 +1059,8 @@
           el("div", { class: "row-head" }, [icon(transportIcon(t.type)), el("strong", { text: t.type || "" }), el("span", { class: "muted mono", text: fmtDate(t.date) })]),
           has(route) ? el("div", { text: route }) : null,
           has(time) ? el("div", { class: "mono muted", text: time }) : null,
-          has(t.detail) ? el("div", { class: "muted", text: t.detail }) : null
+          has(t.detail) ? el("div", { class: "muted", text: t.detail }) : null,
+          extLinks(t.links)
         ]);
       }))]));
     }
@@ -1043,7 +1070,7 @@
           el("div", { class: "row-head" }, [el("strong", { text: s.name || s.area || "" }), has(s.area) && has(s.name) ? el("span", { class: "tag ghost", text: s.area }) : null]),
           el("div", { class: "mono muted", text: [fmtDate(s.checkIn), fmtDate(s.checkOut)].filter(has).join(" → ") }),
           has(s.note) ? el("div", { class: "muted", text: s.note }) : null,
-          mapLink(s.mapQuery)
+          el("div", null, [mapLink(s.mapQuery)].concat((s.links || []).filter(function (l) { return l && safeUrl(l.url); }).map(function (l) { return link(l.url, l.label || "リンク"); })))
         ]);
       }))]));
     }
@@ -1081,36 +1108,6 @@
         el("div", { class: "links" }, [mapLink(s.mapQuery), url ? link(url, "Web サイト") : null])
       ]);
     }))] });
-  }
-
-  // 参考ブログ
-  var articles = (data.articles || []).filter(function (a) { return a && safeUrl(a.url) && has(a.title); });
-  if (articles.length) {
-    var aGroups = [], aBy = {};
-    articles.forEach(function (a) {
-      var g = has(a.about) ? a.about : "旅全体";
-      if (!aBy[g]) { aBy[g] = []; aGroups.push(g); }
-      aBy[g].push(a);
-    });
-    var ac = [el("div", { class: "notice" }, [icon("info"), el("span", { text: "行き先や行く場所について参考になる記事です。内容は書かれた時点のものなので、営業時間や料金は公式の情報で確認してください。" })])];
-    aGroups.forEach(function (g) {
-      ac.push(el("div", { class: "article-group" }, [
-        el("h3", null, [icon(g === "旅全体" ? "map" : "pin"), g, el("span", { class: "count", text: aBy[g].length + "件" })]),
-        el("ul", { class: "articles" }, aBy[g].map(function (a) {
-          return el("li", null, [el("a", { class: "article", href: a.url, target: "_blank", rel: "noopener" }, [
-            el("div", { class: "site" }, [
-              has(a.site) ? el("span", { text: a.site }) : el("span", { text: a.url.replace(/^https?:\/\/([^/]+).*$/, "$1") }),
-              has(a.kind) ? el("span", { class: "tag ghost", text: a.kind }) : null,
-              has(a.publishedAt) ? el("span", { text: a.publishedAt }) : null
-            ]),
-            el("div", { class: "title", text: a.title }),
-            has(a.summary) ? el("div", { class: "sum", text: a.summary }) : null,
-            icon("external")
-          ])]);
-        }))
-      ]));
-    });
-    panels.push({ id: "articles", label: "参考ブログ", icon: "book", children: ac });
   }
 
   // 天気
@@ -1203,6 +1200,36 @@
     if (has(n.emergency)) nc.push(card("緊急連絡先", "alert", [kv(n.emergency.map(function (e) { return [e.label, e.value]; }))]));
     if (has(n.items)) nc.push(card("注意事項・メモ", "note", [el("ul", { class: "rows" }, n.items.map(function (t) { return el("li", { text: t }); }))]));
     panels.push({ id: "notes", label: "メモ", icon: "note", children: [el("div", { class: "grid two" }, nc)] });
+  }
+
+  // 参考ブログ
+  var articles = (data.articles || []).filter(function (a) { return a && safeUrl(a.url) && has(a.title); });
+  if (articles.length) {
+    var aGroups = [], aBy = {};
+    articles.forEach(function (a) {
+      var g = has(a.about) ? a.about : "旅全体";
+      if (!aBy[g]) { aBy[g] = []; aGroups.push(g); }
+      aBy[g].push(a);
+    });
+    var ac = [el("div", { class: "notice" }, [icon("info"), el("span", { text: "行き先や行く場所について参考になる記事です。内容は書かれた時点のものなので、営業時間や料金は公式の情報で確認してください。" })])];
+    aGroups.forEach(function (g) {
+      ac.push(el("div", { class: "article-group" }, [
+        el("h3", null, [icon(g === "旅全体" ? "map" : "pin"), g, el("span", { class: "count", text: aBy[g].length + "件" })]),
+        el("ul", { class: "articles" }, aBy[g].map(function (a) {
+          return el("li", null, [el("a", { class: "article", href: a.url, target: "_blank", rel: "noopener" }, [
+            el("div", { class: "site" }, [
+              has(a.site) ? el("span", { text: a.site }) : el("span", { text: a.url.replace(/^https?:\/\/([^/]+).*$/, "$1") }),
+              has(a.kind) ? el("span", { class: "tag ghost", text: a.kind }) : null,
+              has(a.publishedAt) ? el("span", { text: a.publishedAt }) : null
+            ]),
+            el("div", { class: "title", text: a.title }),
+            has(a.summary) ? el("div", { class: "sum", text: a.summary }) : null,
+            icon("external")
+          ])]);
+        }))
+      ]));
+    });
+    panels.push({ id: "articles", label: "参考ブログ", icon: "book", children: ac });
   }
 
   // ---- render -----------------------------------------------------------

@@ -39,7 +39,17 @@
       "to": "新千歳",
       "depart": "08:30",
       "arrive": "10:05",
-      "detail": "サンプル航空 101 便"
+      "detail": "サンプル航空 101 便",
+      "links": [
+        {
+          "label": "羽田空港（フライト情報）",
+          "url": "https://tokyo-haneda.com/index.html"
+        },
+        {
+          "label": "新千歳空港（フライト情報）",
+          "url": "https://www.hokkaido-airports.com/ja/new-chitose/"
+        }
+      ]
     },
     {
       "date": "2026-08-10",
@@ -55,7 +65,17 @@
       "to": "羽田",
       "depart": "17:00",
       "arrive": "18:40",
-      "detail": "サンプル航空 120 便"
+      "detail": "サンプル航空 120 便",
+      "links": [
+        {
+          "label": "新千歳空港（フライト情報）",
+          "url": "https://www.hokkaido-airports.com/ja/new-chitose/"
+        },
+        {
+          "label": "羽田空港（フライト情報）",
+          "url": "https://tokyo-haneda.com/index.html"
+        }
+      ]
     }
   ],
   "stays": [

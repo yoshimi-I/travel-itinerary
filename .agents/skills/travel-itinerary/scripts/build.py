@@ -60,6 +60,21 @@ def validate(data):
             elif plan["date"] not in day_dates:
                 errors.append(f"`rainPlan[{i}].date`（{plan['date']}）と同じ日付が `days` にありません")
 
+    for key in ("transport", "stays"):
+        entries = data.get(key)
+        if not isinstance(entries, list):
+            continue
+        for i, entry in enumerate(entries):
+            links = entry.get("links") if isinstance(entry, dict) else None
+            if links is None:
+                continue
+            if not isinstance(links, list):
+                errors.append(f"`{key}[{i}].links` は配列にしてください")
+                continue
+            for j, lk in enumerate(links):
+                if not isinstance(lk, dict) or not re.match(r"^https?://", str(lk.get("url") or "")):
+                    errors.append(f"`{key}[{i}].links[{j}].url` は http:// か https:// で始まる URL にしてください")
+
     articles = data.get("articles")
     if isinstance(articles, list):
         for i, art in enumerate(articles):

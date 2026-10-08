@@ -19,11 +19,11 @@
 | `budget` | object | | 概要 | 予算 |
 | `days` | array | ✅ | 日程 | 日ごとのタイムスケジュール |
 | `spots` | array | | プラン | 行く場所・食事処の詳細 |
-| `articles` | array | | 参考ブログ | 参考になるブログ・記事 |
 | `weather` | object | | 天気 | 天気の目安 |
 | `rainPlan` | array | | 日程 | 雨の日の代わりの予定（`days` と同じ形）。同じ日付の日程で「晴れ / 雨天」を切り替えられる |
 | `packing` | object | | 持ち物 | 持ち物リスト |
 | `notes` | object | | メモ | 緊急連絡先・注意事項 |
+| `articles` | array | | 参考ブログ | 参考になるブログ・記事（一番最後のタブ） |
 
 ## 各セクション
 
@@ -40,10 +40,20 @@
 `{ name, role, note }` — `role` は「幹事」「運転」など。**本名ではなくニックネームを推奨します。**
 
 ### transport[]
-`{ date, type, from, to, depart, arrive, detail }` — `type` は「飛行機」「新幹線」「レンタカー」など。`depart` / `arrive` は時刻です。
+`{ date, type, from, to, depart, arrive, detail, links }` — `type` は「飛行機」「新幹線」「フェリー」「レンタカー」など（アイコンが自動で変わります）。`depart` / `arrive` は時刻です。
+
+`links` は外部リンクの配列 `[{ label, url }]` です。航空会社・船会社・鉄道会社の運航状況、空港・港の案内、時刻表などを入れます。
+```json
+"links": [
+  { "label": "運航状況", "url": "https://example.com/status" },
+  { "label": "新千歳空港（フライト情報）", "url": "https://www.hokkaido-airports.com/ja/new-chitose/" }
+]
+```
+- `url` は `http(s)://` で始まるものだけ有効です
+- **予約確認ページの URL は入れない**（予約番号やログイン用の情報が含まれることがあるため）。誰が開いてもよい公開ページだけにします
 
 ### stays[]
-`{ name, area, checkIn, checkOut, mapQuery, note }`
+`{ name, area, checkIn, checkOut, mapQuery, note, links }` — `links` は `transport` と同じ形で、宿の公式サイトなどを入れます
 
 ### budget
 `{ perPerson, currency, breakdown: [{ label, amount }], note }` — 金額は数値で書きます。`currency` を省略すると「円」になります。
