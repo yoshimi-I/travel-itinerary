@@ -137,7 +137,7 @@
   .panel-head .no { font-family: var(--mono); font-size: 12px; color: var(--sub); letter-spacing: .1em; }
   .panel-head h2 { font-family: var(--serif); font-weight: 600; font-size: 24px; margin: 0; letter-spacing: .04em; }
 
-  .grid { display: grid; gap: 16px; }
+  .grid { display: grid; gap: 16px; align-items: start; }
   @media (min-width: 720px) {
     .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid .wide { grid-column: 1 / -1; }
@@ -153,9 +153,25 @@
   .muted { color: var(--sub); font-size: 13px; }
   .mono { font-family: var(--mono); }
 
-  dl.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 7px 18px; margin: 0; }
-  dl.kv dt { color: var(--sub); font-size: 13px; padding-top: 1px; }
+  /* 項目名と値。スマホでは縦に並べ、広い画面では横に並べる（項目名の列は最大 38% で折り返す） */
+  dl.kv { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; margin: 0; }
+  dl.kv dt { color: var(--sub); font-size: 12px; margin-top: 10px; }
+  dl.kv dt:first-child { margin-top: 0; }
   dl.kv dd { margin: 0; overflow-wrap: anywhere; }
+  @media (min-width: 480px) {
+    dl.kv { grid-template-columns: fit-content(38%) minmax(0, 1fr); gap: 8px 18px; }
+    dl.kv dt { font-size: 13px; margin-top: 0; padding-top: 1px; }
+  }
+
+  /* 金額の一覧（左に項目、右に金額） */
+  ul.amounts { list-style: none; margin: 0; padding: 0; }
+  ul.amounts li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 7px 0; border-top: 1px solid var(--soft); }
+  ul.amounts li:first-child { border-top: 0; padding-top: 0; }
+  ul.amounts .label { color: var(--sub); font-size: 13px; min-width: 0; overflow-wrap: anywhere; }
+  ul.amounts .amount { white-space: nowrap; }
+  ul.amounts li.total { border-top: 1px solid var(--ink); padding-top: 9px; }
+  ul.amounts li.total .label { color: var(--ink); font-weight: 600; }
+  .card-note { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 14px; overflow-wrap: anywhere; }
 
   ul.rows { list-style: none; margin: 0; padding: 0; }
   ul.rows > li { padding: 11px 0; border-top: 1px solid var(--line); }
@@ -166,7 +182,7 @@
   .tag {
     display: inline-block; font-size: 11px; line-height: 1.6; letter-spacing: .04em;
     border: 1px solid var(--ink); padding: 0 6px; color: var(--ink);
-    vertical-align: 1px; white-space: nowrap;
+    vertical-align: 1px; max-width: 100%; overflow-wrap: anywhere;
   }
   .tag.ghost { border-color: var(--line); color: var(--sub); }
 
@@ -638,13 +654,18 @@
     }
     var b = data.budget;
     if (has(b)) {
-      var rows = [];
-      if (has(b.perPerson)) rows.push(["1人あたり", el("strong", { class: "mono", text: yen(b.perPerson, b.currency) })]);
-      (b.breakdown || []).forEach(function (x) {
-        rows.push([x.label, has(x.amount) ? el("span", { class: "mono", text: yen(x.amount, b.currency) }) : ""]);
+      var items = (b.breakdown || []).filter(function (x) { return has(x.label) || has(x.amount); }).map(function (x) {
+        return el("li", null, [el("span", { class: "label", text: x.label || "" }),
+          el("span", { class: "amount mono", text: has(x.amount) ? yen(x.amount, b.currency) : "要確認" })]);
       });
-      rows.push(["メモ", b.note]);
-      c.push(card("予算", "wallet", [kv(rows)]));
+      if (has(b.perPerson)) {
+        items.push(el("li", { class: "total" }, [el("span", { class: "label", text: "1人あたり" }),
+          el("strong", { class: "amount mono", text: yen(b.perPerson, b.currency) })]));
+      }
+      c.push(card("予算", "wallet", [
+        items.length ? el("ul", { class: "amounts" }, items) : null,
+        has(b.note) ? el("div", { class: items.length ? "card-note" : null, text: b.note }) : null
+      ]));
     }
     if (!c.length) {
       c.push(card("旅の概要", "map", [kv([["行き先", trip.destination], ["日程", fmtDate(trip.startDate) + " → " + fmtDate(trip.endDate)]])], { wide: true }));
