@@ -96,7 +96,7 @@ tests/
 python3 -m unittest discover -s tests -v
 ```
 
-テンプレートやサンプルの JSON を変えたときは、サンプルの HTML も作り直してコミットしてください。使う人に更新を届けたいときは、`.agents/skills/travel-itinerary/VERSION` の番号を上げます（インストールした人には、次に使ったときに更新のお知らせが出ます）。CI（GitHub Actions）で、テスト、サンプルが最新かどうか、テンプレートの JavaScript の構文と、`install.sh` のインストール・削除（macOS と Linux）をチェックしています。
+テンプレートやサンプルの JSON を変えたときは、サンプルの HTML も作り直してコミットしてください。使う人に更新を届けたいときは、`.agents/skills/travel-itinerary/VERSION` の番号を上げて main に push します。タグ（`v0.2.0` など）と GitHub の Release が自動で作られ、インストールした人には、次に使ったときに更新のお知らせが出ます。CI（GitHub Actions）で、テスト、サンプルが最新かどうか、テンプレートの JavaScript の構文と、`install.sh` のインストール・削除（macOS と Linux）をチェックしています。
 
 ```bash
 python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html
