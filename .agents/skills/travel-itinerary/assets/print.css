@@ -28,10 +28,10 @@ h1 { font-size: 17pt; line-height: 1.25; margin: 2pt 0 3pt; }
 section { margin-top: 34pt; }
 header + section { margin-top: 10pt; }
 h2 {
-  font-size: 11pt; margin: 0 0 5pt; padding-bottom: 2pt;
+  font-size: 14pt; margin: 0 0 7pt; padding-bottom: 3pt;
   border-bottom: .8pt solid #111; break-after: avoid; page-break-after: avoid;
 }
-h3 { font-size: 9pt; margin: 0 0 3pt; letter-spacing: .05em; }
+h3 { font-size: 10.5pt; margin: 0 0 4pt; letter-spacing: .05em; }
 
 /* 枠で囲んだまとまりを 2 列に並べる */
 /* minmax(0, 1fr) にしないと、中身の幅に引っぱられて右側がページからはみ出す */
@@ -67,10 +67,10 @@ ul.cols2 li { break-inside: avoid; padding: 2pt 0 4pt; }
 .day:last-child { margin-bottom: 0; }
 .day-head {
   display: flex; align-items: baseline; gap: 8pt;
-  background: #111; color: #fff; padding: 4pt 8pt; font-size: 10.5pt; margin-bottom: 2pt;
+  background: #111; color: #fff; padding: 4.5pt 8pt; font-size: 12pt; margin-bottom: 2pt;
   break-after: avoid; page-break-after: avoid;
 }
-.day-no { font-size: 8pt; letter-spacing: .15em; }
+.day-no { font-size: 9pt; letter-spacing: .15em; }
 .day-note { font-size: 8.5pt; color: #555; padding: 3pt 0 0; }
 table { border-collapse: collapse; width: 100%; }
 table.timeline td { padding: 2.5pt 4pt; border-bottom: .4pt solid #ddd; vertical-align: top; }
@@ -78,7 +78,7 @@ table.timeline tr { break-inside: avoid; page-break-inside: avoid; }
 table.timeline td.time { width: 38pt; font-weight: 700; white-space: nowrap; }
 table.timeline td.map-cell { width: 26pt; text-align: right; }
 .rain { border: .8pt dashed #111; margin-top: 4pt; padding: 3pt 6pt 1pt; break-inside: avoid; }
-.rain-head { font-weight: 700; font-size: 9pt; }
+.rain-head { font-weight: 700; font-size: 10pt; }
 .rain table.timeline td { border-bottom-style: dashed; }
 
 /* 天気 */
