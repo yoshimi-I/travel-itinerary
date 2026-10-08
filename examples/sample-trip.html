@@ -170,6 +170,10 @@
   ul.amounts .amount { white-space: nowrap; }
   ul.amounts li.total { border-top: 1px solid var(--ink); padding-top: 9px; }
   ul.amounts li.total .label { color: var(--ink); font-weight: 600; }
+  ul.bullets { margin: 0; padding: 0; list-style: none; }
+  ul.bullets li { position: relative; padding-left: 14px; margin-top: 6px; overflow-wrap: anywhere; }
+  ul.bullets li:first-child { margin-top: 0; }
+  ul.bullets li::before { content: ""; position: absolute; left: 2px; top: .75em; width: 5px; height: 1px; background: var(--ink); }
   .card-note { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 14px; overflow-wrap: anywhere; }
 
   ul.rows { list-style: none; margin: 0; padding: 0; }
@@ -576,7 +580,10 @@
         "amount": 10000
       }
     ],
-    "note": "現地の支払いは会計のさくらがまとめて、あとで精算"
+    "note": [
+      "現地の支払いは会計のさくらがまとめて、あとで精算",
+      "食事・観光は目安"
+    ]
   },
   "days": [
     {
@@ -1022,6 +1029,16 @@
     }
     return el("div", { class: "card" + (opts.wide ? " wide" : "") }, [title ? el("h3", null, label) : null].concat(children));
   }
+  // メモの文章。配列ならそのまま、文字列なら「。」や改行で区切って、2 つ以上になれば箇条書きにする
+  function noteItems(v) {
+    if (Array.isArray(v)) return v.filter(has).map(String);
+    return String(v).split(/。|\n/).map(function (t) { return t.trim(); }).filter(Boolean);
+  }
+  function noteBlock(v, cls) {
+    var items = noteItems(v);
+    if (items.length < 2) return el("div", { class: cls || null, text: items[0] || "" });
+    return el("ul", { class: "bullets" + (cls ? " " + cls : "") }, items.map(function (t) { return el("li", { text: t }); }));
+  }
   function kv(pairs) {
     var dl = el("dl", { class: "kv" });
     pairs.forEach(function (p) {
@@ -1239,7 +1256,7 @@
       }
       c.push(card("予算", "wallet", [
         items.length ? el("ul", { class: "amounts" }, items) : null,
-        has(b.note) ? el("div", { class: items.length ? "card-note" : null, text: b.note }) : null
+        has(b.note) ? noteBlock(b.note, items.length ? "card-note" : null) : null
       ], { count: has(b.perPerson) ? "1人 " + yen(b.perPerson, b.currency) : null, collapsible: true }));
     }
     if (!c.length) {
@@ -1291,7 +1308,7 @@
       ]);
     })));
     var side = [];
-    if (has(w.note)) side.push(card("服装・天気のメモ", "shirt", [el("div", { text: w.note })]));
+    if (has(w.note)) side.push(card("服装・天気のメモ", "shirt", [noteBlock(w.note)]));
     var links = (w.links || []).filter(function (l) { return safeUrl(l.url); });
     if (links.length) {
       side.push(card("最新の天気予報", "external", [el("ul", { class: "rows" }, links.map(function (l) {

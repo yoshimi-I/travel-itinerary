@@ -58,6 +58,8 @@
 ### budget
 `{ perPerson, currency, breakdown: [{ label, amount }], note }` — 金額は数値で書きます。`currency` を省略すると「円」になります。
 
+`note` は、短い文の配列で書くと箇条書きで表示されます（例: `["宿代・ツアー代は要確認", "島はカードが使えない店が多いので現金を多めに"]`）。文字列で書いた場合も、「。」や改行で区切って、2 つ以上になれば箇条書きにします。`weather.note` も同じです。`breakdown` の `label` は「船代（往復）」のように短くし、補足は `note` に書きます。
+
 ### days[] / rainPlan[]
 ```json
 {

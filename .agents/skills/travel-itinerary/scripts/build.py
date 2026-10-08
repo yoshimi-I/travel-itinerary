@@ -86,6 +86,13 @@ def validate(data):
             if not re.match(r"^https?://", str(art.get("url") or "")):
                 errors.append(f"`articles[{i}].url` は http:// か https:// で始まる URL にしてください")
 
+    for key in ("budget", "weather"):
+        section = data.get(key)
+        if isinstance(section, dict) and "note" in section and section["note"] is not None:
+            note = section["note"]
+            if not isinstance(note, (str, list)) or (isinstance(note, list) and not all(isinstance(x, str) for x in note)):
+                errors.append(f"`{key}.note` は文字列か、文字列の配列にしてください")
+
     for key, kind in (("members", list), ("transport", list), ("stays", list), ("spots", list), ("articles", list),
                       ("weather", dict), ("packing", dict), ("budget", dict), ("notes", dict)):
         if key in data and data[key] is not None and not isinstance(data[key], kind):
