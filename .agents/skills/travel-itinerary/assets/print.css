@@ -24,9 +24,9 @@ h1 { font-size: 17pt; line-height: 1.25; margin: 2pt 0 3pt; }
 .meta { font-size: 9.5pt; }
 .summary { color: #555; font-size: 9pt; margin-top: 2pt; }
 
-/* 概要・日程・プランなどの項目は、それぞれ新しいページから始める */
-section { margin-top: 10pt; }
-section + section { break-before: page; page-break-before: always; margin-top: 0; }
+/* 項目（概要・日程・プランなど）の間は、少し広めに空ける */
+section { margin-top: 22pt; }
+header + section { margin-top: 10pt; }
 h2 {
   font-size: 11pt; margin: 0 0 5pt; padding-bottom: 2pt;
   border-bottom: .8pt solid #111; break-after: avoid; page-break-after: avoid;
@@ -34,8 +34,9 @@ h2 {
 h3 { font-size: 9pt; margin: 0 0 3pt; letter-spacing: .05em; }
 
 /* 枠で囲んだまとまりを 2 列に並べる */
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt; align-items: start; }
-.box { border: .6pt solid #bbb; padding: 5pt 7pt; break-inside: avoid; page-break-inside: avoid; }
+/* minmax(0, 1fr) にしないと、中身の幅に引っぱられて右側がページからはみ出す */
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6pt; align-items: start; }
+.box { min-width: 0; border: .6pt solid #bbb; padding: 5pt 7pt; break-inside: avoid; page-break-inside: avoid; }
 .box.wide { grid-column: 1 / -1; }
 /* 長くなりやすいまとまり（持ち物など）は、ページをまたいでよい */
 .box.flow { break-inside: auto; page-break-inside: auto; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
