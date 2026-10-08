@@ -60,7 +60,18 @@ def validate(data):
             elif plan["date"] not in day_dates:
                 errors.append(f"`rainPlan[{i}].date`（{plan['date']}）と同じ日付が `days` にありません")
 
-    for key, kind in (("members", list), ("transport", list), ("stays", list), ("spots", list),
+    articles = data.get("articles")
+    if isinstance(articles, list):
+        for i, art in enumerate(articles):
+            if not isinstance(art, dict):
+                errors.append(f"`articles[{i}]` はオブジェクトにしてください")
+                continue
+            if not str(art.get("title") or "").strip():
+                errors.append(f"`articles[{i}].title` がありません")
+            if not re.match(r"^https?://", str(art.get("url") or "")):
+                errors.append(f"`articles[{i}].url` は http:// か https:// で始まる URL にしてください")
+
+    for key, kind in (("members", list), ("transport", list), ("stays", list), ("spots", list), ("articles", list),
                       ("weather", dict), ("packing", dict), ("budget", dict), ("notes", dict)):
         if key in data and data[key] is not None and not isinstance(data[key], kind):
             errors.append(f"`{key}` は{'配列' if kind is list else 'オブジェクト'}にしてください")

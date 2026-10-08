@@ -19,6 +19,7 @@
 | `budget` | object | | 概要 | 予算 |
 | `days` | array | ✅ | 日程 | 日ごとのタイムスケジュール |
 | `spots` | array | | プラン | 行く場所・食事処の詳細 |
+| `articles` | array | | 参考ブログ | 参考になるブログ・記事 |
 | `weather` | object | | 天気 | 天気の目安 |
 | `rainPlan` | array | | 日程 | 雨の日の代わりの予定（`days` と同じ形）。同じ日付の日程で「晴れ / 雨天」を切り替えられる |
 | `packing` | object | | 持ち物 | 持ち物リスト |
@@ -63,6 +64,25 @@
 
 ### spots[]
 `{ name, category, day, description, mapQuery, url }` — `category` は「観光」「ごはん」「おみやげ」など。`day` は「1日目」などの目安。`url` は `http(s)://` で始まるものだけがリンクになります。
+
+### articles[]
+```json
+{
+  "title": "記事のタイトル（ページの見出しのまま）",
+  "url": "https://example.com/blog/otaru",
+  "site": "サイト名",
+  "kind": "ブログ",
+  "about": "小樽運河",
+  "summary": "1〜2 文の要約。本文を書き写さない",
+  "publishedAt": "2025-07-01",
+  "checkedAt": "2026-10-08"
+}
+```
+- 必須は `title` と `url`（`http(s)://` で始まるもの）
+- `kind`: `ブログ` / `旅行メディア` / `公式サイト` など
+- `about`: 関係する場所。同じ `about` の記事はまとめて表示されます。省略すると「旅全体」になります
+- `publishedAt`: 記事の公開日・更新日（分かれば）。`checkedAt`: 実際に開いて確認した日
+- **実際に開いて確認した URL だけを書く**（推測で作らない）
 
 ### weather
 ```json
