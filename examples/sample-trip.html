@@ -134,7 +134,7 @@
     padding-bottom: 10px; margin-bottom: 22px;
   }
   .panel-head .no { font-family: var(--mono); font-size: 12px; color: var(--sub); letter-spacing: .1em; }
-  .panel-head h2 { font-family: var(--serif); font-weight: 600; font-size: 24px; margin: 0; letter-spacing: .04em; }
+  .panel-head h2 { font-family: var(--serif); font-weight: 600; font-size: 28px; margin: 0; letter-spacing: .04em; }
 
   .grid { display: grid; gap: 16px; align-items: start; }
   @media (min-width: 720px) {
@@ -145,7 +145,7 @@
   .card { border: 1px solid var(--line); padding: 18px 18px 16px; background: var(--paper); }
   .card > h3 {
     display: flex; align-items: center; gap: 9px;
-    font-size: 13px; font-weight: 600; letter-spacing: .08em;
+    font-size: 15px; font-weight: 600; letter-spacing: .06em;
     margin: 0 0 12px; color: var(--ink);
   }
   .card > h3 .count { margin-left: auto; font-family: var(--mono); font-weight: 400; color: var(--sub); }
@@ -228,9 +228,9 @@
   .card-toggle {
     display: flex; align-items: center; gap: 9px; width: 100%;
     padding: 0; border: 0; background: none; color: inherit; font: inherit;
-    font-size: 13px; font-weight: 600; letter-spacing: .08em; text-align: left; cursor: pointer;
+    font-size: 15px; font-weight: 600; letter-spacing: .06em; text-align: left; cursor: pointer;
   }
-  .card-toggle .count { margin-left: auto; font-weight: 400; color: var(--sub); letter-spacing: 0; }
+  .card-toggle .count, .card > h3 .count, .article-group > h3 .count { margin-left: auto; font-size: 13px; font-weight: 400; color: var(--sub); letter-spacing: 0; }
   .card-toggle .count + svg.chev { margin-left: 8px; }
   .card-toggle svg.chev { margin-left: auto; }
   .card > h3.has-toggle { margin: 0; }
@@ -264,7 +264,7 @@
   .day-no { text-align: center; line-height: 1; padding-right: 16px; border-right: 1px solid var(--line); }
   .day-no small { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .25em; color: var(--sub); }
   .day-no b { display: block; font-family: var(--serif); font-size: 34px; font-weight: 600; margin-top: 4px; }
-  .day-title { font-family: var(--serif); font-size: 18px; font-weight: 600; }
+  .day-title { font-family: var(--serif); font-size: 20px; font-weight: 600; }
   .day-date { font-family: var(--mono); font-size: 13px; color: var(--sub); }
   .day-body { padding: 6px 18px 14px; }
   .day-note { font-size: 13px; color: var(--sub); padding: 10px 0 2px; }
@@ -322,13 +322,13 @@
   .spots { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .spot { border: 1px solid var(--line); padding: 18px; display: flex; flex-direction: column; gap: 6px; }
   .spot .kicker { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 11px; color: var(--sub); letter-spacing: .1em; }
-  .spot h3 { font-family: var(--serif); font-size: 18px; font-weight: 600; margin: 2px 0 0; }
+  .spot h3 { font-family: var(--serif); font-size: 19px; font-weight: 600; margin: 2px 0 0; }
   .spot p { margin: 0; font-size: 14px; }
   .spot .links { margin-top: auto; padding-top: 4px; }
 
   /* ---- articles -------------------------------------------------------- */
   .article-group + .article-group { margin-top: 28px; }
-  .article-group > h3 { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; letter-spacing: .08em; margin: 0 0 10px; }
+  .article-group > h3 { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; letter-spacing: .08em; margin: 0 0 10px; }
   .article-group > h3 .count { margin-left: auto; font-weight: 400; color: var(--sub); }
   ul.articles { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
   ul.articles li { border-bottom: 1px solid var(--line); }
