@@ -89,9 +89,9 @@
       { "label": "気象庁 天気予報", "url": "https://www.jma.go.jp/bosai/forecast/" }
     ],
     "days": [
-      { "date": "2026-08-10", "icon": "🌤", "summary": "晴れ時々くもり（平年）", "high": 26, "low": 19, "rainChance": 30, "clothing": "半袖＋薄手の上着" },
-      { "date": "2026-08-11", "icon": "🌤", "summary": "晴れ時々くもり（平年）", "high": 26, "low": 19, "rainChance": 30, "clothing": "半袖＋薄手の上着" },
-      { "date": "2026-08-12", "icon": "🌤", "summary": "晴れ時々くもり（平年）", "high": 25, "low": 18, "rainChance": 30, "clothing": "半袖＋薄手の上着" }
+      { "date": "2026-08-10", "condition": "partly", "summary": "晴れ時々くもり（平年）", "high": 26, "low": 19, "rainChance": 30, "clothing": "半袖＋薄手の上着" },
+      { "date": "2026-08-11", "condition": "partly", "summary": "晴れ時々くもり（平年）", "high": 26, "low": 19, "rainChance": 30, "clothing": "半袖＋薄手の上着" },
+      { "date": "2026-08-12", "condition": "partly", "summary": "晴れ時々くもり（平年）", "high": 25, "low": 18, "rainChance": 30, "clothing": "半袖＋薄手の上着" }
     ]
   },
   "rainPlan": [

@@ -72,12 +72,13 @@
   "note": "朝晩は涼しいので羽織るものを",
   "links": [{ "label": "tenki.jp 札幌", "url": "https://tenki.jp/" }],
   "days": [
-    { "date": "2026-08-10", "icon": "☀️", "summary": "晴れ", "high": 26, "low": 18, "rainChance": 20, "clothing": "半袖＋薄手の上着" }
+    { "date": "2026-08-10", "condition": "sunny", "summary": "晴れ", "high": 26, "low": 18, "rainChance": 20, "clothing": "半袖＋薄手の上着" }
   ]
 }
 ```
 - `source`: 予報を調べた場合は `"forecast"`、平年の気候を目安にした場合は `"climate"`。しおりに出る注意書きが変わります
 - `checkedAt`: 予報を調べた日（`forecast` のとき）
+- `condition`: 天気のアイコン。`sunny`（晴れ）/ `partly`（晴れ時々くもり）/ `cloudy`（くもり）/ `rain`（雨）/ `snow`（雪）/ `storm`（雷雨）/ `fog`（霧）のどれか。省略すると `summary` の文言から推測します
 
 ### packing
 ```json
