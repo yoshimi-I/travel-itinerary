@@ -1,3 +1,5 @@
 output/
 .DS_Store
 .playwright-mcp/
+__pycache__/
+template-check.js

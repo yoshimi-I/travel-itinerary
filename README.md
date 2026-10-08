@@ -1,7 +1,8 @@
-# Travel_itinerary 🧳
+# Travel Itinerary 🧳
 
 > AI エージェントと対話するだけで、メンバーに配れる「旅のしおり」を HTML で作るツール
 
+[![CI](https://github.com/yoshimi-I/travel-itinerary/actions/workflows/ci.yml/badge.svg)](https://github.com/yoshimi-I/travel-itinerary/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Status](https://img.shields.io/badge/status-WIP-orange)
 
@@ -41,8 +42,8 @@ skill の本体（質問の流れ・JSON の仕様・HTML テンプレート・�
 1. このリポジトリを clone します
 
    ```bash
-   git clone https://github.com/yoshimi-I/Travel_itinerary.git
-   cd Travel_itinerary
+   git clone https://github.com/yoshimi-I/travel-itinerary.git
+   cd travel-itinerary
    ```
 
 2. 使うエージェントを起動し、しおり作成を依頼します
@@ -151,7 +152,7 @@ python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.js
 ## 📁 ディレクトリ構成
 
 ```
-Travel_itinerary/
+travel-itinerary/
 ├── .agents/skills/travel-itinerary/   # skill の本体（Codex はここを直接使う）
 │   ├── SKILL.md                       # 手順全体
 │   ├── references/interview.md        # 質問の進め方
@@ -159,7 +160,9 @@ Travel_itinerary/
 │   ├── assets/template.html           # しおりの HTML テンプレート
 │   └── scripts/build.py               # JSON → HTML のビルド
 ├── .claude/skills/travel-itinerary/   # Claude Code 用の入口
+├── .github/workflows/ci.yml           # CI（GitHub Actions）
 ├── examples/                          # サンプルのしおり（架空のデータ）
+├── tests/                             # build.py のテスト
 └── output/                            # 生成したしおり（git 管理外）
 ```
 
@@ -182,6 +185,22 @@ Travel_itinerary/
 - 生成したしおりは `output/` に保存され、git では管理しません
 - しおりを公開する前に、個人情報が入っていないか確認してください
 - このリポジトリに含めるサンプルには、架空の情報だけを使います
+
+## 🧪 開発
+
+```bash
+# テスト（Python 3 の標準ライブラリのみ）
+python3 -m unittest discover -s tests -v
+
+# テンプレートやサンプルの JSON を変えたら、サンプルの HTML を作り直してコミットする
+python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html
+```
+
+push と Pull Request のたびに、GitHub Actions（[`.github/workflows/ci.yml`](.github/workflows/ci.yml)）が次を確認します。
+
+- テストが通ること
+- `examples/sample-trip.html` が、最新のテンプレートとサンプルの JSON から作り直したものと一致すること
+- テンプレートの JavaScript に構文エラーがないこと
 
 ## 🤝 コントリビュート
 

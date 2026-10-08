@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Check that the sample itinerary is up to date
+        run: |
+          python .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html
+          if ! git diff --quiet -- examples/sample-trip.html; then
+            echo "::error::examples/sample-trip.html が古くなっています。次を実行してコミットしてください:"
+            echo "python3 .agents/skills/travel-itinerary/scripts/build.py examples/sample-trip.json examples/sample-trip.html"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check template JavaScript syntax
+        run: |
+          python - <<'EOF'
+          import re
+          from pathlib import Path
+          html = Path(".agents/skills/travel-itinerary/assets/template.html").read_text(encoding="utf-8")
+          scripts = [s for s in re.findall(r"<script>(.*?)</script>", html, re.S)]
+          assert scripts, "template.html にスクリプトがありません"
+          Path("template-check.js").write_text("\n".join(scripts), encoding="utf-8")
+          EOF
+          node --check template-check.js
