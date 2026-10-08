@@ -25,7 +25,7 @@ h1 { font-size: 17pt; line-height: 1.25; margin: 2pt 0 3pt; }
 .summary { color: #555; font-size: 9pt; margin-top: 2pt; }
 
 /* 項目（概要・日程・プランなど）の間は、少し広めに空ける */
-section { margin-top: 22pt; }
+section { margin-top: 34pt; }
 header + section { margin-top: 10pt; }
 h2 {
   font-size: 11pt; margin: 0 0 5pt; padding-bottom: 2pt;
@@ -61,7 +61,9 @@ ul.cols2 { columns: 2; column-gap: 12pt; }
 ul.cols2 li { break-inside: avoid; padding: 2pt 0 4pt; }
 
 /* 日程 */
-.day { margin-bottom: 18pt; }
+.day { margin-bottom: 22pt; }
+/* ページの途中で切れるときは、まるごと次のページへ送る（1 ページに収まらないほど長いときだけ途中で切れる） */
+.day, section.keep { break-inside: avoid; page-break-inside: avoid; }
 .day:last-child { margin-bottom: 0; }
 .day-head {
   display: flex; align-items: baseline; gap: 8pt;

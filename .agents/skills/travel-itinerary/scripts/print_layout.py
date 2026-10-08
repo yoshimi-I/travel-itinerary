@@ -106,8 +106,10 @@ def box(title, body, cls=""):
     return f'<div class="box {cls}"><h3>{e(title)}</h3>{body}</div>'
 
 
-def section(title, body):
-    return f"<section><h2>{e(title)}</h2>{body}</section>"
+def section(title, body, keep=True):
+    """keep=True なら、ページの途中で切れるときにまるごと次のページへ送る。日程のように長くなる項目は False にする。"""
+    cls = ' class="keep"' if keep else ""
+    return f"<section{cls}><h2>{e(title)}</h2>{body}</section>"
 
 
 # ---- sections ---------------------------------------------------------------
@@ -199,7 +201,7 @@ def schedule(data):
             rain_title = e(r.get("title") or "雨の日のプラン")
             body += f'<div class="rain"><div class="rain-head">雨天時：{rain_title}</div>{day_note(r.get("note"))}{timeline(r.get("items"))}</div>'
         out.append(f'<div class="day">{head}{body}</div>')
-    return section("日程", "".join(out)) if out else ""
+    return section("日程", "".join(out), keep=False) if out else ""
 
 
 def spots(data):
